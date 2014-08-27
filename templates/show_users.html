@@ -1,33 +1,31 @@
 {% extends "layout.html" %}
 {% block body %}
 {% if session.admin %}
+<h2>Управління користувачами</h2>
 
 <form action="{{ url_for('add_users') }} " method=post class=add-entry xmlns="http://www.w3.org/1999/html">
      <dl>
-         <dt>Usarename:
+         <dt>Логін:
          <dd><input type=text name=username>
-         <dt>Password:
+         <dt>Пароль:
          <dd><input type=text name=password>
-         <dd><input type=submit value=add>
+         <dd><input type=submit value=добавити>
      </dl>
  </form>
 
 {% endif %}
 
-
-
 <ul class=entries>
 <table>
 
 <tr>
-<td> login </td>
-<td> password </td>
-<td> status </td>
-<td> del </td>
+<td> Логін </td>
+<td> Пароль </td>
+<td> статус </td>
+<td> дія </td>
 </tr>
 
 {% for user in users %}
-
 
 <tr>
 <td> {{ user.login }} </td>
@@ -36,12 +34,10 @@
 <td> <a href="{{ url_for('del_users', us_id = user.id) }}"> стерти </a> </td>
 </tr>
 
-
 {% else %}
 </table>
 <li><em>Неймовірно. Жодно логіну!</em>
 {% endfor %}
 </ul>
-
 
 {% endblock %}

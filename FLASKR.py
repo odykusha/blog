@@ -37,6 +37,29 @@ def connect_db():
     return rv
 
 
+def get_db():
+    """
+    get DB session
+    """
+    if not hasattr(g, 'sqlite_db'):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """
+    close DB session
+    """
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
+
+
+@app.before_first_request
+def first_visit():
+    return redirect(url_for('login'))
+
+
 def init_db():
     """
     create DB
@@ -47,22 +70,6 @@ def init_db():
             db.cursor().executescript(f.read())
             #db.executescript(f.read())
         db.commit()
-
-        with app.open_resource('schema.sql', mode='r') as f:
-            db.execute("""
-                       insert into users (login, password)
-                       values (?, ?)
-                       """,
-                       ['new_login', 'new_password'])
-        db.commit()
-
-def get_db():
-    """
-    get DB session
-    """
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
 
 
 def show_db(db_name):
@@ -93,7 +100,6 @@ def show_db(db_name):
 def valid_login(login):
     if login == app.config['USERNAME']:
         return False
-
     db = get_db()
     cur = db.execute(sql_scripts.users_valid, [login]).fetchall()
     for i in cur:
@@ -101,16 +107,6 @@ def valid_login(login):
             return False
     #else
     return True
-
-
-@app.teardown_appcontext
-def close_db(error):
-    """
-    close DB session
-    """
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
-
 # ---------------------------------------------
 # view
 
@@ -240,4 +236,4 @@ def err401(error):
 # ---------------------------------------------
 # start
 if __name__ == '__main__':
-    app.run(host='10.5.4.152', port=80)
+    app.run(host='0.0.0.0', port=80)

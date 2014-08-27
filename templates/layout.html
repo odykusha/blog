@@ -1,20 +1,24 @@
 <!doctype html>
-<title>Flaskr</title>
+<title>Flaskr блог</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }} ">
 
 <div class=page>
-<h1>Flaskr</h1>
+<h1>
+<a href="{{ url_for('show_entries') }} ">  Блог </a>
+</h1>
 
 <div class=metanav>
-{% if not session.logged_in %}
-<a href="{{ url_for('login') }} ">log in</a>
-{% else %}
-<a href="{{ url_for('logout') }} ">log out</a>
+{% if session.admin %}
+<a href="{{ url_for('show_users') }}"> юзери </a>
 {% endif %}
 
-{% if session.admin %}
-<a href="{{ url_for('show_users') }}"> user </a>
+{% if not session.logged_in %}
+<a href="{{ url_for('login') }} ">зайти</a>
+{% else %}
+<a href="{{ url_for('logout') }} ">вийти</a>
 {% endif %}
+
+
 </div>
 
 {% for message in get_flashed_messages() %}
