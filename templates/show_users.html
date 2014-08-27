@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block body %}
+{% if session.admin %}
+
+<form action="{{ url_for('add_users') }} " method=post class=add-entry xmlns="http://www.w3.org/1999/html">
+     <dl>
+         <dt>Usarename:
+         <dd><input type=text name=username>
+         <dt>Password:
+         <dd><input type=text name=password>
+         <dd><input type=submit value=add>
+     </dl>
+ </form>
+
+{% endif %}
+
+
+
+<ul class=entries>
+<table>
+
+<tr>
+<td> login </td>
+<td> password </td>
+<td> status </td>
+<td> del </td>
+</tr>
+
+{% for user in users %}
+
+
+<tr>
+<td> {{ user.login }} </td>
+<td> {{ user.password }} </td>
+<td> {{ user.status }} </td>
+<td> <a href="{{ url_for('del_users', us_id = user.id) }}"> стерти </a> </td>
+</tr>
+
+
+{% else %}
+</table>
+<li><em>Неймовірно. Жодно логіну!</em>
+{% endfor %}
+</ul>
+
+
+{% endblock %}
