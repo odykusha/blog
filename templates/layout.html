@@ -7,9 +7,10 @@
 <a href="{{ url_for('show_entries') }} ">  Блог </a>
 </h1>
 
+
 <div class=metanav>
 {% if session.admin %}
-<a href="{{ url_for('show_users') }}"> юзери </a>
+<a href="{{ url_for('show_users') }}">юзери</a>
 {% endif %}
 
 {% if not session.logged_in %}

@@ -3,7 +3,8 @@ create table entries (
  id integer primary key autoincrement,
  timestamp DATE DEFAULT (datetime('now','localtime')),
  title text not null,
- text text not null
+ text text not null,
+ user_name text not null
 );
 
 drop table if exists users;

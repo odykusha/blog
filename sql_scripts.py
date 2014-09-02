@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 # entries --------------------------------------
 entries_show = """
-               select id, title, text, timestamp
+               select id, title, text, timestamp, user_name
                from entries
                order by id desc
                """
 
 entries_add = """
-              insert into entries (title, text)
-              values (?, ?)
+              insert into entries (title, text, user_name)
+              values (?, ?, ?)
               """
 
 entries_del = """

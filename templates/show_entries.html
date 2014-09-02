@@ -1,28 +1,35 @@
 {% extends "layout.html" %}
 {% block body %}
 {% if session.logged_in %}
-<form action="{{ url_for('add_entry') }} " method=post class=add-entry xmlns="http://www.w3.org/1999/html">
+
+<form action="{{ url_for('add_entry') }}"  method="post">
+ {{ form.hidden_tag() }}
 <dl>
-<dt>Тема:
-<dd><input type=text size=30 name=title>
-<dt>Текст:
-<dd><textarea name=text rows=5 cols=40></textarea>
-<dd><input type=submit value=Share>
+<dt> {{ form.blog_title.label }} :
+<dd> {{ form.blog_title(size=50, placeholder="Вкажіть тему повідомлення") }}
+
+<dt> {{ form.blog_text.label }} :
+<dd> {{ form.blog_text(rows=7, cols=50, placeholder="Текст напишіть тут. Можливе використання тегів") }}
+
+<dd> {{ form.submit }}
 </dl>
 </form>
 {% endif %}
 
+
 <ul class=entries>
 {% for entry in entries %}
-<li><h2>{{ entry.title }}   </h2>
- {{ entry.text|safe }}
-  <small>
-    <br>
+<li><h2> {{ entry.title }} </h2>
+         {{ entry.text|safe }}
+  <small> <br>
+    {{ entry.user_name }}
     {{ entry.timestamp }}
-{% if session.logged_in %}
+
+{% if session.admin or session.user_name == entry.user_name %}
     <a href="{{ url_for('del_entry', en_id = entry.id) }}"> стерти </a>
 {% endif %}
   </small>
+
 {% else %}
 <li><em>Неймовірно. Жодно запису!</em>
 {% endfor %}

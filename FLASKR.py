@@ -3,27 +3,61 @@ from flask import Flask, request, session, g, redirect, \
 import sqlite3
 import os
 import sql_scripts
+from flask.ext.wtf import Form
+from wtforms import StringField, PasswordField, SubmitField, validators, TextAreaField
+#from wtforms. import Required, DataRequired, Length, EqualTo
 # ---------------------------------------------
 # config
 DATABASE = 'flaskr.db'
 DEBUG = True
-SECRET_KEY = 'some key'
+SECRET_KEY = os.urandom(25)
 USERNAME = 'admin'
 PASSWORD = 'passwd'
-
+CSRF_ENABLED = True
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, 'flaskr.db'),
-    DEBUG=True,
-    SECRET_KEY='some secret key',
-    USERNAME='admin',
-    PASSWORD='passwd'
-))
+# app.config.update(dict(
+#     DATABASE=os.path.join(app.root_path, 'flaskr.db'),
+#     DEBUG=True,
+#     SECRET_KEY='some secret key',
+#     USERNAME='admin',
+#     PASSWORD='passwd'
+# ))
 
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
+
+# ---------------------------------------------
+# class WTForm's
+class LoginForm(Form):
+    psw_min = 3
+    psw_max = 15
+    auth_login = StringField('Логін',  [validators.DataRequired(message='логін не може бути пустим')])
+    auth_password = PasswordField('Пароль',
+                              [validators.Length(min=psw_min, max=psw_max,
+                                                 message='пароль має бути від %s до %s символів' % (psw_min, psw_max))])
+    submit = SubmitField('Зайти')
+
+
+class UserForm(Form):
+    len_min = 3
+    len_max = 15
+    user_login = StringField('Логін користувача',
+                             [validators.DataRequired(message='логін не може бути пустим'),
+                              validators.Length(min=len_min, max=len_max,
+                                                message='логін має бути від %s до %s символів' % (len_min, len_max))])
+    user_password = StringField('Пароль користувача',
+                                [validators.Length(min=len_min, max=len_max,
+                                                   message='пароль має бути від %s до %s символів' % (len_min, len_max))])
+    submit = SubmitField('Добавити')
+
+
+class BlogForm(Form):
+    blog_title = StringField('Заголовок')
+    blog_text = TextAreaField('Текст')
+    submit = SubmitField('Добавити')
 
 
 # ---------------------------------------------
@@ -113,10 +147,14 @@ def valid_login(login):
 
 @app.route('/')
 def show_entries():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     db = get_db()
+    #if not form:
+    form = BlogForm()
     cur = db.execute(sql_scripts.entries_show)
     entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    return render_template('show_entries.html', entries=entries, form=form)
 
 
 @app.route('/add/', methods=['POST'])
@@ -124,13 +162,15 @@ def add_entry():
     if not session.get('logged_in'):
         abort(401)
     db = get_db()
-    if request.form['title'] == '' or request.form['text'] == '':
-        flash('"Заголовок" або "Текст" має бути не пустим!')
-        return redirect(url_for('show_entries'))
-    db.execute(sql_scripts.entries_add,
-               [request.form['title'], request.form['text']])
-    db.commit()
-    flash('пост додано')
+    form = BlogForm()
+    if form.submit():
+        if form.blog_title.data == '' or form.blog_text.data == '':
+            flash('"Заголовок" або "Текст" має бути не пустим!')
+            return redirect(url_for('show_entries'))
+        db.execute(sql_scripts.entries_add,
+                   [form.blog_title.data, form.blog_text.data, session.get('user_name')])
+        db.commit()
+        flash('пост додано')
     return redirect(url_for('show_entries'))
 
 
@@ -150,67 +190,86 @@ def login():
     error = None
     db_login = None
     db_pass = None
-    if request.method == 'POST':
+    form = LoginForm()
+
+    if form.validate_on_submit():
+
         db = get_db()
         cur = db.execute(sql_scripts.users_get,
-                [request.form['username'], request.form['password']]).fetchall()
+                [form.auth_login.data, form.auth_password.data]).fetchall()
         for i in cur:
             db_login = i[0]
             db_pass = i[1]
 
-
-        if request.form['username'] != app.config['USERNAME']:
+        if form.auth_login.data != app.config['USERNAME']:
             error = 'Логін не знайдено'
-        elif request.form['password'] != app.config['PASSWORD']:
+        elif form.auth_password.data != app.config['PASSWORD']:
             error = 'Пароль невірний'
         else:
             session['logged_in'] = True
             session['admin'] = True
+            session['user_name'] = form.auth_login.data
             flash('Ви успішно авторизуватись')
             return redirect(url_for('show_entries'))
 
-
-        if request.form['username'] != db_login:
+        if form.auth_login.data != db_login and form.auth_login.data != app.config['USERNAME']:
             error = 'Логін не знайдено'
-        elif request.form['password'] != db_pass:
+        elif form.auth_password.data != db_pass:
             error = 'Пароль невірний'
         else:
             session['logged_in'] = True
+            session['user_name'] = form.auth_login.data
             flash('Ви успішно авторизуватись')
             return redirect(url_for('show_entries'))
 
-    return render_template('login.html', error=error)
+    return render_template('login.html', error=error, form=form)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('admin', None)
+    flash('Ви вийшли')
+    return redirect(url_for('login'))
 
 
 @app.route('/users/', methods=['GET'])
-def show_users():
+#@app.route('/users/<form>', methods=['GET'])
+def show_users(form=None):
+    if not session.get('admin'):
+        abort(401)
     db = get_db()
+    if not form:
+        form = UserForm()
     cur = db.execute(sql_scripts.users_show)
     users = cur.fetchall()
-    return render_template('show_users.html', users=users)
+    return render_template('show_users.html', users=users, form=form)
 
 
 @app.route('/users/add/', methods=['POST'])
 def add_users():
-    if not session['admin']:
+    if not session.get('admin'):
         abort(401)
 
     db = get_db()
-    if not valid_login(request.form['username']):
-        flash('Логін вже є')
-    elif len(request.form['password']) < 3:
-        flash('Пароль закороткий')
-    else:
-        db.execute(sql_scripts.users_add,
-                   [request.form['username'], request.form['password']])
-        flash('успішно добавлений юзер')
-        db.commit()
-    return redirect(url_for('show_users'))
+    form = UserForm()
+    if form.validate_on_submit():
+        if not valid_login(form.user_login.data):
+            flash('Логін вже є')
+        else:
+            db.execute(sql_scripts.users_add,
+                      [form.user_login.data, form.user_password.data])
+            flash('юзер успішно добавлений')
+            db.commit()
+            form.user_login.data=''
+            form.user_password.data=''
+    #return redirect(url_for('show_users', form=form))
+    return show_users(form)
 
 
 @app.route('/users/del/<us_id>', methods=['POST', 'GET'])
 def del_users(us_id):
-    if not session['admin']:
+    if not session.get('admin'):
         abort(401)
     db = get_db()
     db.execute(sql_scripts.users_del, [us_id])
@@ -219,12 +278,6 @@ def del_users(us_id):
     return redirect(url_for('show_users'))
 
 
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    session.pop('admin', None)
-    flash('Ви вийшли')
-    return redirect(url_for('show_entries'))
 # ---------------------------------------------
 # error
 

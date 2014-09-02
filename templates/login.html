@@ -1,17 +1,33 @@
-{% extends "layout.html" %}
-{% block body %}
- <h2>Авторизація</h2>
+<!doctype html>
+<title>Flaskr блог</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }} ">
+
+
  {% if error %} <p class=error><strong>Error:</strong> {{ error }}
  {% endif %}
 
- <form action="{{ url_for('login') }}" method=post>
-     <dl>
-         <dt>Логін:
-         <dd><input type=text name=username>
-         <dt>Пароль:
-         <dd><input type=password name=password>
-         <dd><input type=submit value=Login>
-     </dl>
- </form>
 
-{% endblock %}
+
+<form method="post" class="form-container">
+    {{ form.hidden_tag() }}
+<div class="form-title"><h2>Авторизація</h2></div>
+<div class="form-title">Логін</div>
+    {{ form.auth_login(placeholder='логін', class="form-field") }}
+    {% for message in form.auth_login.errors %}
+        <text> {{ message }} </text>
+    {% endfor %}  <br />
+
+
+<div class="form-title">Пароль</div>
+    {{ form.auth_password(placeholder='пароль', class="form-field") }}
+    {% for message in form.auth_password.errors %}
+         <text> {{ message }} </text>
+    {% endfor %} <br />
+
+<div class="submit-container">
+    {{ form.submit(class="submit-button") }}
+
+</div>
+</form>
+
+
