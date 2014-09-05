@@ -1,11 +1,12 @@
 from flask import Flask, request, session, g, redirect, \
                   url_for, abort, render_template, flash
-import sqlite3
-import os
-import sql_scripts
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, validators, TextAreaField
-#from wtforms. import Required, DataRequired, Length, EqualTo
+import sqlite3
+import os
+import functools
+import sql_scripts
+
 # ---------------------------------------------
 # config
 DATABASE = 'flaskr.db'
@@ -145,12 +146,25 @@ def valid_login(login):
 # view
 
 
+class Logging(object):
+    def __init__(self, wrapper):
+        self.wrapper = wrapper
+        functools.update_wrapper(self, wrapper)
+    def __call__(self, *args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+       # elif session.get('logged_in') and not session.get('admin'):
+       #     abort(401)
+        return self.wrapper(*args, **kwargs)
+
+
+
 @app.route('/')
+@Logging
 def show_entries():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
+    #if not session.get('logged_in'):
+    #    return redirect(url_for('login'))
     db = get_db()
-    #if not form:
     form = BlogForm()
     cur = db.execute(sql_scripts.entries_show)
     entries = cur.fetchall()
@@ -158,9 +172,10 @@ def show_entries():
 
 
 @app.route('/add/', methods=['POST'])
+@Logging
 def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
+#    if not session.get('logged_in'):
+#        abort(401)
     db = get_db()
     form = BlogForm()
     if form.submit():
@@ -175,9 +190,10 @@ def add_entry():
 
 
 @app.route('/del/<en_id>', methods=['POST', 'GET'])
+@Logging
 def del_entry(en_id):
-    if not session.get('logged_in'):
-        abort(401)
+#    if not session.get('logged_in'):
+#        abort(401)
     db = get_db()
     db.execute(sql_scripts.entries_del, [en_id])
     db.commit()
@@ -234,7 +250,6 @@ def logout():
 
 
 @app.route('/users/', methods=['GET'])
-#@app.route('/users/<form>', methods=['GET'])
 def show_users(form=None):
     if not session.get('admin'):
         abort(401)
