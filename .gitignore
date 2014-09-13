@@ -44,3 +44,4 @@ Icon
 .idea/vcs.xml
 .idea/workspace.xml
 flaskr.db
+*.nja

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-{% if session.logged_in %}
+{% if session.logged_user %}
 
 <form action="{{ url_for('add_entry') }}"  method="post">
  {{ form.hidden_tag() }}
@@ -20,12 +20,22 @@
 <ul class=entries>
 {% for entry in entries %}
 <li><h2> {{ entry.title }} </h2>
-         {{ entry.text|safe }}
-  <small> <br>
+
+
+<table width=100%>
+<td>
+<pre>
+{{ entry.text|safe }}
+</pre>
+</td>
+</table>
+
+
+  <small>
     {{ entry.user_name }}
     {{ entry.timestamp }}
 
-{% if session.admin or session.user_name == entry.user_name %}
+{% if session.logged_admin or session.user_name == entry.user_name %}
     <a href="{{ url_for('del_entry', en_id = entry.id) }}"> стерти </a>
 {% endif %}
   </small>

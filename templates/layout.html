@@ -9,11 +9,11 @@
 
 
 <div class=metanav>
-{% if session.admin %}
+{% if session.logged_admin %}
 <a href="{{ url_for('show_users') }}">юзери</a>
 {% endif %}
 
-{% if not session.logged_in %}
+{% if not session.logged_user %}
 <a href="{{ url_for('login') }} ">зайти</a>
 {% else %}
 <a href="{{ url_for('logout') }} ">вийти</a>
