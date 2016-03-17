@@ -115,7 +115,7 @@ def show_db(db_name):
 
         if db_name == 'entries':
             rows = cur_en.fetchall()
-            print(('ID', 'Time', 'Title', 'Text', 'User_name'))
+            print(('ID', 'Time\t', 'Title', 'Text', 'User_name'))
             for row in rows:
                 print((row['id'],
                       row['timestamp'],
@@ -240,6 +240,8 @@ def add_entry():
 @logging('logged_user')
 def del_entry(en_id):
     db = get_db()
+
+
     db.execute(sql_scripts.entries_del, [en_id])
     db.commit()
     flash('пост видалено')
@@ -297,4 +299,4 @@ def del_users(us_id):
 
 ###############################################################################
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='127.0.0.1', port=8080)

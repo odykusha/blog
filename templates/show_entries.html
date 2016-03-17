@@ -2,7 +2,8 @@
 {% block body %}
 {% if session.logged_user %}
 
-<form action="{{ url_for('add_entry') }}"  method="post">
+<form action="{{ url_for('add_entry') }}" method="post" xmlns:border="http://www.w3.org/1999/xhtml"
+      xmlns:width="http://www.w3.org/1999/xhtml" xmlns:width="http://www.w3.org/1999/xhtml">
  {{ form.hidden_tag() }}
 <dl>
 <dt> {{ form.blog_title.label }} :
@@ -16,13 +17,30 @@
 </form>
 {% endif %}
 
-
+<!-- шапка комента -->
 <ul class=entries>
-{% for entry in entries %}
-<li><h2> {{ entry.title }} </h2>
+
+        {% for entry in entries %}
+    <table class="post_head">
+        <li>
+<td class="left">    <h2 class="post"> {{ entry.title }} </h2>   </td>
 
 
-<table width=100%>
+<td class="right">
+    <small>
+    {{ entry.user_name }}
+    {{ entry.timestamp }}
+
+    {% if session.logged_admin or session.user_name == entry.user_name %}
+    <a class="post_head" href="{{ url_for('del_entry', en_id = entry.id) }}"> стерти </a>
+    {% endif %}
+    </small>
+</td>
+    </table>
+
+
+<!-- тіло комента border="1px" width="100%"-->
+<table class="posts">
 <td>
 <pre>
 {{ entry.text|safe }}
@@ -31,14 +49,7 @@
 </table>
 
 
-  <small>
-    {{ entry.user_name }}
-    {{ entry.timestamp }}
 
-{% if session.logged_admin or session.user_name == entry.user_name %}
-    <a href="{{ url_for('del_entry', en_id = entry.id) }}"> стерти </a>
-{% endif %}
-  </small>
 
 {% else %}
 <li><em>Неймовірно. Жодно запису!</em>
