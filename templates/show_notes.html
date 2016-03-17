@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block body %}
+
+{% if session.logged_user %}
+<form action="{{ url_for('add_note') }}" method="post" xmlns:border="http://www.w3.org/1999/xhtml"
+      xmlns:width="http://www.w3.org/1999/xhtml" xmlns:width="http://www.w3.org/1999/xhtml">
+ {{ form.hidden_tag() }}
+<dl>
+<dd> {{ form.blog_text(rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}
+<dd> {{ form.submit }}
+</dl>
+</form>
+{% endif %}
+
+<!-- шапка комента -->
+<ul class=entries>
+
+
+{% for note in notes %}
+    <table class="post_head">
+        <li>
+    <td class="left">
+        <h2 class="post"> {{ note.user_name }} </h2>
+    </td>
+
+    <td class="right">
+        <small>
+        {{ note.timestamp }}
+        {% if session.logged_admin or session.user_name == note.user_name %}
+        <a class="post_head" href="{{ url_for('del_note', nt_id = note.id) }}"> стерти </a>
+        {% endif %}
+        </small>
+    </td>
+    </table>
+
+
+<!-- тіло комента -->
+<table class="posts">
+    <td>
+    <pre> {{ note.text|safe }} </pre>
+    </td>
+</table>
+
+
+{% else %}
+<li><em>Неймовірно. Жодно запису!</em>
+{% endfor %}
+</ul>
+
+
+{% endblock %}

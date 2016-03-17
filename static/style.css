@@ -1,10 +1,9 @@
 body            { font-family: sans-serif; background: rgba(226, 232, 249, 0.71); }
 a.post          { color: #172CF9; }
 h1.post         { border-bottom: 2px solid #444444; font-family: 'Georgia', serif; margin: 0; }
-h2.post         { font-size: 1.2em; color: #172CF9; font-family: 'Georgia', serif; margin: 0;}
+h2.post         { font-size: 1em; color: #172CF9; font-family: 'Georgia', serif; margin: 0;}
 text            { color: crimson; font-family: cursive; font-size: 12px;}
 small           { font-family: cursive; font-size: 11px;}
-
 
 
 .page           { margin: 2em auto; width: 55em; border: 2px solid rgb(141, 143, 255); padding: 0.8em; background: rgba(107, 122, 152, 0.15); }

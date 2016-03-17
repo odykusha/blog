@@ -55,8 +55,7 @@ class UserForm(Form):
 
 
 class BlogForm(Form):
-    blog_title = StringField('Заголовок')
-    blog_text = TextAreaField('Текст')
+    blog_text = TextAreaField()
     submit = SubmitField('Добавити')
 
 
@@ -98,40 +97,6 @@ def init_db():
         #db.commit()
 
 
-def show_db(db_name):
-    """
-    show DB content
-    """
-    with app.app_context():
-        db = get_db()
-        cur_en = db.execute("""
-                         select *
-                         from entries
-                         """)
-        cur_us = db.execute("""
-                         select *
-                         from users
-                         """)
-
-        if db_name == 'entries':
-            rows = cur_en.fetchall()
-            print(('ID', 'Time\t', 'Title', 'Text', 'User_name'))
-            for row in rows:
-                print((row['id'],
-                      row['timestamp'],
-                      row['title'],
-                      row['text'],
-                      row['user_name']))
-        elif db_name == 'users':
-            rows = cur_us.fetchall()
-            print(('ID', 'Login', 'Password', 'Status'))
-            for row in rows:
-                print((row['id'],
-                      row['login'],
-                      row['password'],
-                      row['status']))
-
-
 def valid_login(login):
     if login == app.config['USERNAME']:
         return False
@@ -142,6 +107,39 @@ def valid_login(login):
             return False
     #else
     return True
+
+
+def show_db(db_name):
+    """
+    show DB content
+    """
+    with app.app_context():
+        db = get_db()
+        cur_en = db.execute("""
+                         select *
+                         from notes
+                         """)
+        cur_us = db.execute("""
+                         select *
+                         from users
+                         """)
+
+        if db_name == 'notes':
+            rows = cur_en.fetchall()
+            print(('ID', 'timestamp', 'Text', 'User_name'))
+            for row in rows:
+                print((row['id'],
+                      row['timestamp'],
+                      row['text'],
+                      row['user_name']))
+        elif db_name == 'users':
+            rows = cur_us.fetchall()
+            print(('ID', 'Login', 'Password', 'Status'))
+            for row in rows:
+                print((row['id'],
+                      row['login'],
+                      row['password'],
+                      row['status']))
 
 
 ###############################################################################
@@ -180,7 +178,7 @@ def login():
             session['logged_admin'] = True
             session['user_name'] = form.auth_login.data
             flash('Ви успішно авторизуватись, як адмін')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('show_notes'))
         # перевірить наявність в базі
         db = get_db()
         cur = db.execute(sql_scripts.users_get,
@@ -188,8 +186,7 @@ def login():
         for i in cur:
             db_login = i['login']
             db_pass = i['password']
-        if form.auth_login.data != db_login \
-        and form.auth_login.data != app.config['USERNAME']:
+        if form.auth_login.data != db_login and form.auth_login.data != app.config['USERNAME']:
             error = 'Логін не знайдено'
         elif form.auth_password.data != db_pass:
             error = 'Пароль невірний'
@@ -197,7 +194,7 @@ def login():
             session['logged_user'] = True
             session['user_name'] = form.auth_login.data
             flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('show_notes'))
     return render_template('login.html', error=error, form=form)
 
 
@@ -210,42 +207,44 @@ def logout():
 
 @app.route('/')
 @logging('logged_user')
-def show_entries():
+def show_notes():
     db = get_db()
     form = BlogForm()
-    cur = db.execute(sql_scripts.entries_show)
-    entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries, form=form)
+    cur = db.execute(sql_scripts.note_show)
+    notes = cur.fetchall()
+    return render_template('show_notes.html', notes=notes, form=form)
 
 
 @app.route('/add/', methods=['POST'])
 @logging('logged_user')
-def add_entry():
+def add_note():
     db = get_db()
     form = BlogForm()
     if form.submit():
-        if form.blog_title.data == '' or form.blog_text.data == '':
-            flash('"Заголовок" або "Текст" має бути не пустим!')
-            return redirect(url_for('show_entries'))
-        db.execute(sql_scripts.entries_add,
-                   [form.blog_title.data,
-                    form.blog_text.data,
+        db.execute(sql_scripts.note_add,
+                   [form.blog_text.data,
                     session.get('user_name')])
         db.commit()
         flash('пост додано')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('show_notes'))
 
 
-@app.route('/del/<en_id>', methods=['POST', 'GET'])
+@app.route('/del/<nt_id>', methods=['POST', 'GET'])
 @logging('logged_user')
-def del_entry(en_id):
+def del_note(nt_id):
     db = get_db()
-
-
-    db.execute(sql_scripts.entries_del, [en_id])
-    db.commit()
-    flash('пост видалено')
-    return redirect(url_for('show_entries'))
+    # дістаємо логін користувача з ІД посту
+    cur = db.execute(sql_scripts.get_user_by_note_id, [nt_id])
+    delete_from_user = cur.fetchall()
+    # перевірка видалення не дійсного посту
+    if len(delete_from_user) == 0:
+        return redirect(url_for('show_notes'))
+    # видаляти може лише автор, або адмін
+    if delete_from_user[0]['user_name'] == session['user_name'] or session.get('logged_admin'):
+        db.execute(sql_scripts.note_del, [nt_id])
+        db.commit()
+        flash('пост видалено')
+    return redirect(url_for('show_notes'))
 
 
 @app.route('/users/', methods=['GET'])
@@ -266,11 +265,11 @@ def add_users():
     form = UserForm()
     if form.validate_on_submit():
         if not valid_login(form.user_login.data):
-            flash('Логін вже є')
+            flash('Такий логін вже є')
         else:
             db.execute(sql_scripts.users_add,
                       [form.user_login.data, form.user_password.data])
-            flash('юзер успішно добавлений')
+            flash('Юзер успішно добавлений')
             db.commit()
             form.user_login.data = ''
             form.user_password.data = ''

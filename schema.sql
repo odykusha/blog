@@ -1,8 +1,7 @@
-drop table if exists entries;
-create table entries (
+drop table if exists notes;
+create table notes (
  id integer primary key autoincrement,
  timestamp DATE DEFAULT (datetime('now','localtime')),
- title text not null,
  text text not null,
  user_name text not null
 );
