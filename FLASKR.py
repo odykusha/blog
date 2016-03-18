@@ -12,7 +12,8 @@ from wtforms import StringField, PasswordField, SubmitField, \
 import sql_scripts
 
 ###############################################################################
-DATABASE = 'flaskr.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
 USERNAME = 'admin'
@@ -55,7 +56,9 @@ class UserForm(Form):
 
 
 class BlogForm(Form):
-    blog_text = TextAreaField()
+    blog_text = TextAreaField("text",
+        [validators.Length(max=3, message='чому ти сука не працюєш')])
+
     submit = SubmitField('Добавити')
 
 
@@ -220,7 +223,7 @@ def show_notes():
 def add_note():
     db = get_db()
     form = BlogForm()
-    if form.submit():
+    if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.note_add,
                    [form.blog_text.data,
                     session.get('user_name')])

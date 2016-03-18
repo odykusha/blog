@@ -7,6 +7,9 @@
  {{ form.hidden_tag() }}
 <dl>
 <dd> {{ form.blog_text(rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}
+    {% for message in form.blog_text.errors %}
+         <text>{{ message }}</text>
+     {% endfor %}
 <dd> {{ form.submit }}
 </dl>
 </form>
