@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h3>Source</h3>
+
+
+{% if note %}
+<b>id:</b>          {{ note[0].id }} <br>
+<b>timestamp:</b>   {{ note[0].timestamp }} <br>
+<b>user_name:</b>   {{ note[0].user_name }} <br>
+<b>text:</b>        {{ note[0].text }} <br>
+<a class="post_head" href="{{ url_for('del_note', note_id = note[0].id) }}"> стерти </a><br>
+
+{% else %}
+такий запис відсутній
+{% endif %}
+
+
+{% endblock %}

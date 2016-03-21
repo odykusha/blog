@@ -21,9 +21,8 @@
  </form>
 
 
-
-<ul class=entries>
-<table>
+{% if users %}
+<table class="users">
 
 <tr>
 <th> Логін </th>
@@ -31,6 +30,7 @@
 <th> статус </th>
 <th> дія </th>
 </tr>
+{% endif %}
 
 {% for user in users %}
 
@@ -45,6 +45,6 @@
 </table>
 <li><em>Неймовірно. Жодно логіну!</em>
 {% endfor %}
-</ul>
+
 
 {% endblock %}

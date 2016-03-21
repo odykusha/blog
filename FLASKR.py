@@ -80,6 +80,18 @@ def get_db():
     return g.sqlite_db
 
 
+def valid_login(login):
+    if login == app.config['USERNAME']:
+        return False
+    db = get_db()
+    cur = db.execute(sql_scripts.users_valid, [login]).fetchall()
+    for i in cur:
+        if i['login'] == login:
+            return False
+    #else
+    return True
+
+
 @app.teardown_appcontext
 def close_db(error):
     """
@@ -98,18 +110,6 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         #db.commit()
-
-
-def valid_login(login):
-    if login == app.config['USERNAME']:
-        return False
-    db = get_db()
-    cur = db.execute(sql_scripts.users_valid, [login]).fetchall()
-    for i in cur:
-        if i['login'] == login:
-            return False
-    #else
-    return True
 
 
 def show_db(db_name):
@@ -218,6 +218,15 @@ def show_notes():
     return render_template('show_notes.html', notes=notes, form=form)
 
 
+@app.route('/notes_source/<note_id>')
+@logging('logged_admin')
+def show_note_source(note_id):
+    db = get_db()
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
+    return render_template('show_note_source.html', note=note)
+
+
 @app.route('/add/', methods=['POST'])
 @logging('logged_user')
 def add_note():
@@ -232,19 +241,19 @@ def add_note():
     return redirect(url_for('show_notes'))
 
 
-@app.route('/del/<nt_id>', methods=['POST', 'GET'])
+@app.route('/del/<note_id>', methods=['POST', 'GET'])
 @logging('logged_user')
-def del_note(nt_id):
+def del_note(note_id):
     db = get_db()
     # дістаємо логін користувача з ІД посту
-    cur = db.execute(sql_scripts.get_user_by_note_id, [nt_id])
-    delete_from_user = cur.fetchall()
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
     # перевірка видалення не дійсного посту
-    if len(delete_from_user) == 0:
+    if len(note) == 0:
         return redirect(url_for('show_notes'))
     # видаляти може лише автор, або адмін
-    if delete_from_user[0]['user_name'] == session['user_name'] or session.get('logged_admin'):
-        db.execute(sql_scripts.note_del, [nt_id])
+    if note[0]['user_name'] == session['user_name'] or session.get('logged_admin'):
+        db.execute(sql_scripts.note_del, [note_id])
         db.commit()
         flash('пост видалено')
     return redirect(url_for('show_notes'))

@@ -16,11 +16,12 @@ note_del = """
         where id = (?)
         """
 
-get_user_by_note_id = """
-        select user_name
+get_note_by_node_id = """
+        select id, timestamp, text, user_name
         from notes
         where id = (?)
         """
+
 # users ---------------------------------------
 users_show = """
         select id, login, password, status

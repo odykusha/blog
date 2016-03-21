@@ -16,7 +16,7 @@
 {% endif %}
 
 <!-- шапка комента -->
-<ul class=entries>
+<ul class="entries">
 
 
 {% for note in notes %}
@@ -29,8 +29,13 @@
     <td class="right">
         <small>
         {{ note.timestamp }}
+
+        {% if session.logged_admin %}
+        <a href="{{ url_for('show_note_source', note_id = note.id) }}"> source </a>
+        {% endif %}
+
         {% if session.logged_admin or session.user_name == note.user_name %}
-        <a class="post_head" href="{{ url_for('del_note', nt_id = note.id) }}"> стерти </a>
+        <a class="post_head" href="{{ url_for('del_note', note_id = note.id) }}"> стерти </a>
         {% endif %}
         </small>
     </td>
