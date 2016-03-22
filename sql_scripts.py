@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 # notes  --------------------------------------
 note_show = """
-        select id, text, timestamp, user_name
-        from notes
+        select nt.id as id,
+             nt.text as text,
+        nt.timestamp as timestamp,
+       usr.user_name as user_name
+        from notes nt
+        LEFT OUTER JOIN users usr ON nt.user_id = usr.id
         order by id desc
         """
 
 note_add = """
-        insert into notes (text, user_name)
+        insert into notes (text, user_id)
         values (?, ?)
         """
 
@@ -17,34 +21,35 @@ note_del = """
         """
 
 get_note_by_node_id = """
-        select id, timestamp, text, user_name
+        select id, timestamp, text, user_id
         from notes
         where id = (?)
         """
 
 # users ---------------------------------------
 users_show = """
-        select id, login, password, status
+        select id, user_name, password, status
         from users
+        where id <> 0
         order by id desc
         """
 
 users_get = """
-        select login, password
+        select id, user_name, password
         from users
-        where login = (?)
+        where user_name = (?)
         and password = (?)
         """
 
 users_add = """
-        insert into users (login, password)
+        insert into users (user_name, password)
         values (?, ?)
         """
 
 users_valid = """
-        select login
+        select user_name
         from users
-        where login = (?)
+        where user_name = (?)
         """
 
 users_del = """

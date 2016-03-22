@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 
-{% if session.logged_user %}
+
 <form action="{{ url_for('add_note') }}" method="post" xmlns:border="http://www.w3.org/1999/xhtml"
       xmlns:width="http://www.w3.org/1999/xhtml" xmlns:width="http://www.w3.org/1999/xhtml">
  {{ form.hidden_tag() }}
@@ -13,7 +13,7 @@
 <dd> {{ form.submit }}
 </dl>
 </form>
-{% endif %}
+
 
 <!-- шапка комента -->
 <ul class="entries">

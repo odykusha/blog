@@ -16,8 +16,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
-USERNAME = 'admin'
-PASSWORD = 'passwd'
 CSRF_ENABLED = True
 
 app = Flask(__name__)
@@ -80,16 +78,13 @@ def get_db():
     return g.sqlite_db
 
 
-def valid_login(login):
-    if login == app.config['USERNAME']:
-        return False
+def login_in_db(login):
     db = get_db()
     cur = db.execute(sql_scripts.users_valid, [login]).fetchall()
     for i in cur:
-        if i['login'] == login:
-            return False
-    #else
-    return True
+        if i['user_name'] == login:
+            return True
+    return False
 
 
 @app.teardown_appcontext
@@ -118,29 +113,29 @@ def show_db(db_name):
     """
     with app.app_context():
         db = get_db()
-        cur_en = db.execute("""
+        if db_name == 'notes':
+            cur_nt = db.execute("""
                          select *
                          from notes
                          """)
-        cur_us = db.execute("""
-                         select *
-                         from users
-                         """)
-
-        if db_name == 'notes':
-            rows = cur_en.fetchall()
-            print(('ID', 'timestamp', 'Text', 'User_name'))
+            rows = cur_nt.fetchall()
+            print(('ID', 'timestamp', 'Text', 'User_id'))
             for row in rows:
                 print((row['id'],
                       row['timestamp'],
                       row['text'],
-                      row['user_name']))
+                      row['user_id']))
+
         elif db_name == 'users':
+            cur_us = db.execute("""
+                         select *
+                         from users
+                         """)
             rows = cur_us.fetchall()
-            print(('ID', 'Login', 'Password', 'Status'))
+            print(('ID', 'User_name', 'Password', 'Status'))
             for row in rows:
                 print((row['id'],
-                      row['login'],
+                      row['user_name'],
                       row['password'],
                       row['status']))
 
@@ -171,31 +166,26 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        # перевірити з локальних налаштувань
-        if form.auth_login.data != app.config['USERNAME']:
-            error = 'Логін не знайдено'
-        elif form.auth_password.data != app.config['PASSWORD']:
-            error = 'Пароль невірний'
-        else:
-            session['logged_user'] = True
-            session['logged_admin'] = True
-            session['user_name'] = form.auth_login.data
-            flash('Ви успішно авторизуватись, як адмін')
-            return redirect(url_for('show_notes'))
         # перевірить наявність в базі
         db = get_db()
         cur = db.execute(sql_scripts.users_get,
                 [form.auth_login.data, form.auth_password.data]).fetchall()
-        for i in cur:
-            db_login = i['login']
-            db_pass = i['password']
-        if form.auth_login.data != db_login and form.auth_login.data != app.config['USERNAME']:
-            error = 'Логін не знайдено'
+        for c in cur:
+            db_id    = c['id']
+            db_login = c['user_name']
+            db_pass  = c['password']
+
+        if not login_in_db(form.auth_login.data):
+            error = ('Логін не знайдено')
+
         elif form.auth_password.data != db_pass:
-            error = 'Пароль невірний'
+            error = 'Невірний пароль'
         else:
             session['logged_user'] = True
             session['user_name'] = form.auth_login.data
+            session['user_id'] = db_id
+            if db_login == 'admin':
+                session['logged_admin'] = True
             flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
             return redirect(url_for('show_notes'))
     return render_template('login.html', error=error, form=form)
@@ -235,7 +225,7 @@ def add_note():
     if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.note_add,
                    [form.blog_text.data,
-                    session.get('user_name')])
+                    session.get('user_id')])
         db.commit()
         flash('пост додано')
     return redirect(url_for('show_notes'))
@@ -252,7 +242,7 @@ def del_note(note_id):
     if len(note) == 0:
         return redirect(url_for('show_notes'))
     # видаляти може лише автор, або адмін
-    if note[0]['user_name'] == session['user_name'] or session.get('logged_admin'):
+    if note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
         db.execute(sql_scripts.note_del, [note_id])
         db.commit()
         flash('пост видалено')
@@ -276,7 +266,7 @@ def add_users():
     db = get_db()
     form = UserForm()
     if form.validate_on_submit():
-        if not valid_login(form.user_login.data):
+        if login_in_db(form.user_login.data):
             flash('Такий логін вже є')
         else:
             db.execute(sql_scripts.users_add,
@@ -285,7 +275,6 @@ def add_users():
             db.commit()
             form.user_login.data = ''
             form.user_password.data = ''
-    #return redirect(url_for('show_users', form=form))
     return show_users(form)
 
 
