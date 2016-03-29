@@ -1,31 +1,36 @@
 <!doctype html>
 <title>Flaskr блог</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }} ">
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <script type=text/javascript src="{{ url_for('static', filename='functions.js') }}"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+</head>
 
 <div class=page>
-<h1 class="post">
-<a class="post" href="{{ url_for('show_notes') }} ">  Блог </a>
-</h1>
+    <h1 class="post">
+        <a class="post" href="{{ url_for('show_notes') }} "> Блог </a>
+    </h1>
 
 
-<div class=metanav>
-{% if session.logged_user %}
-    ви зайшли як: {{ session.user_name }},
-    {% if session.logged_admin %}
+    <div class=metanav>
+        {% if session.logged_user %}
+        ви зайшли як: {{ session.user_name }},
+        {% if session.logged_admin %}
         <a class="post" href="{{ url_for('show_users') }}">юзери</a>
-    {% endif %}
-    <a class="post" href="{{ url_for('logout') }} ">вийти</a>
+        {% endif %}
+        <a class="post" href="{{ url_for('logout') }} ">вийти</a>
 
-{% else %}
-    <a class="post" href="{{ url_for('login') }} ">зайти</a>
-{% endif %}
-</div>
-
-
-{% for message in get_flashed_messages() %}
-<div class=flash>{{ message }} </div>
-{% endfor %}
+        {% else %}
+        <a class="post" href="{{ url_for('login') }} ">зайти</a>
+        {% endif %}
+    </div>
 
 
-{% block body %} {% endblock %}
+    {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+    {% endfor %}
+
+
+    {% block body %} {% endblock %}
 </div>

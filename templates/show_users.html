@@ -4,47 +4,71 @@
 <h2>Управління користувачами</h2>
 
 <form method="post" action="{{ url_for('add_users') }}">
-     <dl>
-         {{ form.hidden_tag() }}
+    <dl>
+        {{ form.hidden_tag() }}
 
-         {{ form.user_login(placeholder='Логін користувача') }}
-     {% for message in form.user_login.errors %}
-         <text>{{ message }}</text>
-     {% endfor %} <br>
+        {{ form.user_login(placeholder='Логін користувача') }}
+        {% for message in form.user_login.errors %}
+        <text>{{ message }}</text>
+        {% endfor %} <br>
 
-         {{ form.user_password(placeholder='Пароль користувача') }}
-     {% for message in form.user_password.errors %}
-         <text>{{ message }}</text>
-     {% endfor %} <br>
-         {{ form.submit }}
-     </dl>
- </form>
+        {{ form.user_password(placeholder='Пароль користувача') }}
+        {% for message in form.user_password.errors %}
+        <text>{{ message }}</text>
+        {% endfor %} <br>
+        {{ form.submit }}
+    </dl>
+</form>
 
 
 {% if users %}
 <table class="users">
 
-<tr>
-<th> Логін </th>
-<th> Пароль </th>
-<th> статус </th>
-<th> дія </th>
-</tr>
-{% endif %}
+    <tr>
+        <th> Логін</th>
+        <th> Пароль</th>
+        <th> статус</th>
+        <th> дія</th>
+    </tr>
+    {% endif %}
 
-{% for user in users %}
+    {% for user in users %}
 
-<tr>
-<td> {{ user.user_name }} </td>
-<td> {{ user.password }} </td>
-<td> {{ user.status }} </td>
-<td> <a href="{{ url_for('del_users', us_id = user.id) }}"> стерти </a> </td>
-</tr>
+    <tr>
+        <td> {{ user.user_name }}</td>
+        <td> {{ user.password }}</td>
+        <td> {{ user.status }}</td>
 
-{% else %}
+        <!-- блок видалення юзера -->
+        <td>
+        <form name="FormForDeleteUser_{{user.id}}" action="{{ url_for('del_users', us_id = user.id) }}" method="post">
+            <a href="{{ url_for('del_users', us_id = user.id) }}"
+               onclick="document.getElementById('delete_{{user.id}}').style.display='inline'; return false;">видалити</a>
+        <span id="delete_{{user.id}}" style="display:none;">
+        <!-- так -->
+        <a href="#" onclick="document.FormForDeleteUser_{{user.id}}.submit();">
+            <abbr title="Так">
+                <b class="green"> &#8730; </b>
+            </abbr>
+        </a>
+        /
+        <!-- ні -->
+        <a href="#"
+           onclick="document.getElementById('delete_{{user.id}}').style.display='none'; return false;">
+            <abbr title="Ні">
+                <b class="red"> &times; </b>
+            </abbr>
+        </a>
+        </span>
+        </form>
+        </td>
+        <!-- /блок видалення юзера -->
+
+    </tr>
+
+    {% else %}
 </table>
 <li><em>Неймовірно. Жодно логіну!</em>
-{% endfor %}
+    {% endfor %}
 
-
-{% endblock %}
+    {% endblock %}

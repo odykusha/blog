@@ -3,11 +3,13 @@ import os
 import functools
 import sqlite3
 
-from flask import Flask, session, g, redirect, \
-                  url_for, render_template, flash
+from flask import Flask, session, g, redirect, url_for, render_template, flash, \
+                  request
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, \
                     validators, TextAreaField
+# from flask.ext.cache import Cache
+#from flask_debugtoolbar import DebugToolbarExtension
 
 import sql_scripts
 
@@ -17,10 +19,13 @@ DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
+HOST = '127.0.0.1'
+PORT = 8080
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-
+# cache = Cache(app,config={'CACHE_TYPE': 'simple'})
+#tools = DebugToolbarExtension(app)
 
 ###############################################################################
 # WTForm's
@@ -57,6 +62,7 @@ class BlogForm(Form):
     blog_text = TextAreaField("text",
         [validators.Length(max=3, message='чому ти сука не працюєш')])
 
+    del_submit = SubmitField('Delete buster!')
     submit = SubmitField('Добавити')
 
 
@@ -78,15 +84,6 @@ def get_db():
     return g.sqlite_db
 
 
-def login_in_db(login):
-    db = get_db()
-    cur = db.execute(sql_scripts.users_valid, [login]).fetchall()
-    for i in cur:
-        if i['user_name'] == login:
-            return True
-    return False
-
-
 @app.teardown_appcontext
 def close_db(error):
     """
@@ -94,6 +91,15 @@ def close_db(error):
     """
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+
+def login_in_db(login):
+    db = get_db()
+    cur = db.execute(sql_scripts.valid_user_name, [login]).fetchall()
+    for i in cur:
+        if i['user_name'] == login:
+            return True
+    return False
 
 
 def init_db():
@@ -168,7 +174,7 @@ def login():
     if form.validate_on_submit():
         # перевірить наявність в базі
         db = get_db()
-        cur = db.execute(sql_scripts.users_get,
+        cur = db.execute(sql_scripts.get_user,
                 [form.auth_login.data, form.auth_password.data]).fetchall()
         for c in cur:
             db_id    = c['id']
@@ -182,8 +188,8 @@ def login():
             error = 'Невірний пароль'
         else:
             session['logged_user'] = True
-            session['user_name'] = form.auth_login.data
-            session['user_id'] = db_id
+            session['user_name']   = form.auth_login.data
+            session['user_id']     = db_id
             if db_login == 'admin':
                 session['logged_admin'] = True
             flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
@@ -191,24 +197,24 @@ def login():
     return render_template('login.html', error=error, form=form)
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     session.pop('logged_user', None)
     session.pop('logged_admin', None)
     return redirect(url_for('login'))
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 @logging('logged_user')
 def show_notes():
     db = get_db()
     form = BlogForm()
-    cur = db.execute(sql_scripts.note_show)
+    cur = db.execute(sql_scripts.get_all_notes)
     notes = cur.fetchall()
     return render_template('show_notes.html', notes=notes, form=form)
 
 
-@app.route('/notes_source/<note_id>')
+@app.route('/notes_source/<note_id>', methods=['GET'])
 @logging('logged_admin')
 def show_note_source(note_id):
     db = get_db()
@@ -223,7 +229,7 @@ def add_note():
     db = get_db()
     form = BlogForm()
     if form.submit() and len(form.blog_text.data) > 0:
-        db.execute(sql_scripts.note_add,
+        db.execute(sql_scripts.add_note,
                    [form.blog_text.data,
                     session.get('user_id')])
         db.commit()
@@ -231,7 +237,7 @@ def add_note():
     return redirect(url_for('show_notes'))
 
 
-@app.route('/del/<note_id>', methods=['POST', 'GET'])
+@app.route('/del/<int:note_id>', methods=['POST'])
 @logging('logged_user')
 def del_note(note_id):
     db = get_db()
@@ -240,22 +246,36 @@ def del_note(note_id):
     note = cur.fetchall()
     # перевірка видалення не дійсного посту
     if len(note) == 0:
-        return redirect(url_for('show_notes'))
+        flash('хуя тобі, вже нема такого поста')
     # видаляти може лише автор, або адмін
-    if note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
-        db.execute(sql_scripts.note_del, [note_id])
+    elif note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
+        db.execute(sql_scripts.del_note, [note_id])
         db.commit()
         flash('пост видалено')
+    # перевірка видалення чужого поста
+    else:
+        flash('хитрожопий, ти не можеш видалити чужий пост')
     return redirect(url_for('show_notes'))
 
 
-@app.route('/users/', methods=['GET'])
+@app.route('/users/<user_name>', methods=['GET'])
+@logging('logged_user')
+def user_note(user_name):
+    db = get_db()
+    form = BlogForm()
+    cur = db.execute(sql_scripts.get_user_notes, [user_name])
+    notes = cur.fetchall()
+    return render_template('show_notes.html', notes=notes, form=form)
+
+
+@app.route('/users/view/', methods=['GET'])
 @logging('logged_admin')
+#@cache.cached(timeout=50)
 def show_users(form=None):
     db = get_db()
     if not form:
         form = UserForm()
-    cur = db.execute(sql_scripts.users_show)
+    cur = db.execute(sql_scripts.get_all_users)
     users = cur.fetchall()
     return render_template('show_users.html', users=users, form=form)
 
@@ -269,7 +289,7 @@ def add_users():
         if login_in_db(form.user_login.data):
             flash('Такий логін вже є')
         else:
-            db.execute(sql_scripts.users_add,
+            db.execute(sql_scripts.add_user,
                       [form.user_login.data, form.user_password.data])
             flash('Юзер успішно добавлений')
             db.commit()
@@ -278,25 +298,32 @@ def add_users():
     return show_users(form)
 
 
-@app.route('/users/del/<us_id>', methods=['POST', 'GET'])
+@app.route('/users/del/<us_id>', methods=['POST'])
 @logging('logged_admin')
 def del_users(us_id):
     db = get_db()
-    db.execute(sql_scripts.users_del, [us_id])
+    db.execute(sql_scripts.del_user, [us_id])
     db.commit()
     flash('Користувач видалений')
     return redirect(url_for('show_users'))
 
 
+# @app.route('/static/<filename>')
+# # @cache.cached(timeout=5)
+# def static_proxy(filename):
+#     print("static: ", filename)
+#     return app.send_static_file(filename)
+
+
 ###############################################################################
 # error
 ###############################################################################
-#@app.errorhandler(401)
-#def err401(error):
-    #flash("Ви не авторизувались! %s" % error)
-    #return redirect(url_for('show_entries'))
+@app.errorhandler(404)
+def err404(error):
+    return "Шукаєш те, чого нема!<br> %s" % error
 
 
 ###############################################################################
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080)
+    app.run(host=app.config['HOST'],
+            port=app.config['PORT'])

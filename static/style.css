@@ -21,6 +21,8 @@ pre             { white-space: pre-wrap; margin: 10px; }
 .post_head      { border:2px; width:100%; table-layout:fixed;}
 .left           { text-align: left;}
 .right          { text-align: right;}
+.red            { color: red; font-size: 19px;}
+.green          { color: green; font-size: 19px;}
 
 
 .form-container {
