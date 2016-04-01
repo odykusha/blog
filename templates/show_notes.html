@@ -23,7 +23,7 @@
 <ul class="entries">
 
     {% for note in notes %}
-    {% if note.global_visible or note.id == session.user_id %}
+    {% if note.global_visible or note.user_name == session.user_name %}
 
     <table class="post_head">
         <li>
