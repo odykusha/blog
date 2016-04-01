@@ -7,25 +7,20 @@
 <b>id:</b>          {{ note[0].id }} <br>
 <b>timestamp:</b>   {{ note[0].timestamp }} <br>
 <b>user_name:</b>   {{ note[0].user_name }} <br>
-<b>text:</b>        {{ note[0].text }} <br>
 
-<form name="FormForDelete_{{note.id}}" action="{{ url_for('del_note', note_id = note[0].id) }}" method="post">
-    <a href="{{ url_for('del_note', note_id = note[0].id) }}"
-       onclick="document.getElementById('delete').style.display='inline'; return false;">видалити</a>
-<span id="delete" style="display:none;">
-<a href="#" onclick="document.FormForDelete_{{note.id}}.submit();">
-    <abbr title="Так">
-        <b class="green"> &#8730; </b>
-    </abbr>
-</a>
-    /
-<a href="#" onclick="document.getElementById('delete').style.display='none'; return false;">
-    <abbr title="Ні">
-        <b class="red"> &times; </b>
-    </abbr>
-</a>
-</span>
+<!-- форма для редагування -->
+<form action="{{ url_for('change_note', note_id = note[0].id) }}" method="post">
+    {{ form.hidden_tag() }}
+    <dl>
+        <dd> {{ form.visible_post }}відображати пост усім
+        <dd> {{ form.blog_text(value=note[0].text, rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}
+            {% for message in form.blog_text.errors %}
+            <text>{{ message }}</text>
+            {% endfor %}
+        <dd> {{ form.submit(value='Змінити') }}
+    </dl>
 </form>
+
 
 {% else %}
 такий запис відсутній

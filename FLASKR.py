@@ -7,7 +7,7 @@ from flask import Flask, session, g, redirect, url_for, render_template, flash, 
                   request, abort
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, \
-                    validators, TextAreaField
+                    validators, TextAreaField, BooleanField
 # from flask.ext.cache import Cache
 #from flask_debugtoolbar import DebugToolbarExtension
 
@@ -60,8 +60,9 @@ class UserForm(Form):
 
 class BlogForm(Form):
     blog_text = TextAreaField("text",
-        [validators.Length(max=3, message='чому ти сука не працюєш')])
+        [validators.Length(max=3, message='цей грьобаний текст ніколи не відобразиться')])
 
+    visible_post = BooleanField("Видний усім")
     submit = SubmitField('Добавити')
 
 
@@ -124,12 +125,13 @@ def show_db(db_name):
                          from notes
                          """)
             rows = cur_nt.fetchall()
-            print(('ID', 'timestamp', 'Text', 'User_id'))
+            print(('ID', 'timestamp', 'Text', 'User_id', 'global_visible'))
             for row in rows:
                 print((row['id'],
                       row['timestamp'],
                       row['text'],
-                      row['user_id']))
+                      row['user_id'],
+                      row['global_visible']))
 
         elif db_name == 'users':
             cur_us = db.execute("""
@@ -185,7 +187,6 @@ def login():
 
         if not login_in_db(form.auth_login.data):
             error = 'Логін не знайдено'
-
         elif form.auth_password.data != db_pass:
             error = 'Невірний пароль'
         else:
@@ -203,7 +204,9 @@ def login():
 def logout():
     session.pop('logged_user', None)
     session.pop('logged_admin', None)
-    return redirect(url_for('login'))
+    session.pop('user_name', None)
+    session.pop('user_id', None)
+    return redirect(url_for('show_notes'))
 
 
 @app.route('/', methods=['GET'])
@@ -211,31 +214,49 @@ def logout():
 def show_notes():
     db = get_db()
     form = BlogForm()
-    cur = db.execute(sql_scripts.get_all_notes)
+    cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
     notes = cur.fetchall()
-    return render_template('show_notes.html', notes=notes, form=form)
+    return render_template('show_notes.html', blog_form_visible=False, view_user=None, notes=notes, form=form)
 
 
 @app.route('/users/<user_name>', methods=['GET'])
-@logging('logged_user')
-def user_notes(user_name):
-    if session.get('user_name') == user_name or session.get('logged_admin'):
-        db = get_db()
-        form = BlogForm()
-        cur = db.execute(sql_scripts.get_user_notes, [user_name])
-        notes = cur.fetchall()
-        return render_template('show_notes.html', notes=notes, form=form)
-    else:
-        abort(403)
+#@logging('logged_user')
+def show_user_notes(user_name):
+    db = get_db()
+    form = BlogForm()
+    cur = db.execute(sql_scripts.get_user_notes, [user_name])
+    notes = cur.fetchall()
+    return render_template('show_notes.html', blog_form_visible=True, view_user=user_name, notes=notes, form=form)
+
+    # if session.get('user_name') == user_name or session.get('logged_admin'):
+    #     db = get_db()
+    #     form = BlogForm()
+    #     cur = db.execute(sql_scripts.get_user_notes, [user_name])
+    #     notes = cur.fetchall()
+    #     return render_template('show_notes.html', blog_form_visible=True, notes=notes, form=form)
+    # else:
+    #     abort(403)
 
 
 @app.route('/notes_source/<note_id>', methods=['GET'])
-@logging('logged_admin')
+@logging('logged_user')
 def show_note_source(note_id):
     db = get_db()
+    form = BlogForm()
+    # дістаємо логін користувача з ІД посту
     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
     note = cur.fetchall()
-    return render_template('show_note_source.html', note=note)
+    # перевірка не дійсного посту
+    if len(note) == 0:
+        flash('хуя тобі, вже нема такого поста')
+    for nt in note:
+        if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
+            form.blog_text.data = nt['text']
+            form.visible_post.data = bool(nt['global_visible'])
+            return render_template('show_note_source.html', note=note, form=form)
+        else:
+            flash('чужі пости підглядати не добре')
+    return redirect(url_for('show_user_notes'))
 
 
 @app.route('/add/', methods=['POST'])
@@ -246,10 +267,34 @@ def add_note():
     if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.add_note,
                    [form.blog_text.data,
-                    session.get('user_id')])
+                    session.get('user_id'),
+                    int(form.visible_post.data)])
         db.commit()
         flash('пост додано')
-    return redirect(url_for('show_notes'))
+    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+
+
+@app.route('/change_note/<note_id>', methods=['POST'])
+@logging("logged_user")
+def change_note(note_id):
+    db = get_db()
+    form = BlogForm()
+    # змінювати пост може лише його автор
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
+    for nt in note:
+        if nt['user_id'] != session.get('user_id'):
+            return redirect(url_for('show_user_notes'))
+    # збереження зміненого поста
+    if form.submit() and len(form.blog_text.data) > 0:
+        db.execute(sql_scripts.change_note,
+                   [form.blog_text.data,
+                    int(form.visible_post.data),
+                    note_id])
+        db.commit()
+        flash('пост змінено')
+        flash(form.visible_post.data)
+    return redirect(url_for('show_user_notes'))
 
 
 @app.route('/del/<int:note_id>', methods=['POST'])
@@ -270,7 +315,7 @@ def del_note(note_id):
     # перевірка видалення чужого поста
     else:
         flash('хитрожопий, ти не можеш видалити чужий пост')
-    return redirect(url_for('show_notes'))
+    return redirect(url_for('show_user_notes'))
 
 
 @app.route('/users/view/', methods=['GET'])

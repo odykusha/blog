@@ -6,7 +6,7 @@ text            { color: crimson; font-family: cursive; font-size: 12px;}
 small           { font-family: cursive; font-size: 11px;}
 pre             { white-space: pre-wrap; margin: 10px; }
 
-.page           { margin: 1em auto; width: 50%; border: 2px solid rgb(141, 143, 255); padding: 0.8em; background: rgba(107, 122, 152, 0.15); }
+.page           { margin: 1em auto; width: 900px; border: 2px solid rgb(141, 143, 255); padding: 0.8em; background: rgba(107, 122, 152, 0.15); }
 .entries        { border:1px; list-style: none; margin: 0; padding: 0; }
 li.entries      { margin: 0.8em 1.2em;}
 .users td       { border:1px solid grey; border-collapse:collapse; table-layout:fixed; }
@@ -18,12 +18,12 @@ li.entries      { margin: 0.8em 1.2em;}
 .error          { background: #f0d6d6; padding: 0.5em; }
 .login          { text-align: center;}
 .posts          { border:1px solid; width:100%; solid grey; border-collapse:collapse; table-layout:fixed; }
-.post_head      { border:2px; width:100%; table-layout:fixed;}
+.post_head      { border:2px; width:100%; table-layout:fixed; padding: 10px 0px 0px; }
 .left           { text-align: left;}
 .right          { text-align: right;}
 .red            { color: red; font-size: 19px;}
 .green          { color: green; font-size: 19px;}
-
+.visible        { color: #00BCD4; }
 
 
 ul.head { list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333; }
@@ -42,9 +42,10 @@ table.head      { border-collapse: collapse; width:100%; }
 td.head         { width:1px; }
 
 header {
+  position: fixed;
   background-color: #2B2B2B;
   height: 35px;
-  width: 100%;
+  width: 99%;
   opacity: .9;
 }
 

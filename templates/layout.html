@@ -13,17 +13,18 @@
     <table class="head">
         <td>
             <li><a href="{{ url_for('show_notes') }}"> Блог </a></li>
+
         {% if session.logged_user %}
-            <li><a href="{{ url_for('user_notes', user_name=session.get('user_name')) }}"> Мій блог </a></li>
+            <li><a href="{{ url_for('show_user_notes', user_name=session.get('user_name')) }}"> Мій блог </a></li>
             <li><div class="active"> ви зайшли як: {{ session.user_name }} </div></li>
         </td>
 
-        {% if session.logged_admin %}
-        <td>
-            <li style="float:right"><a class="active" href="{{ url_for('show_users') }}"> юзери </a></li>
-        </td>
+            {% if session.logged_admin %}
+            <td>
+                <li style="float:right"><a class="active" href="{{ url_for('show_users') }}"> юзери </a></li>
+            </td>
+            {% endif %}
 
-        {% endif %}
         <td class="head">
             <li style="float:right"><a class="active" href="{{ url_for('logout') }} "> вийти </a></li>
         </td>
@@ -38,7 +39,7 @@
 </ul>
 </header>
 
-
+<br><br>
 
 <div class=page>
     {% for message in get_flashed_messages() %}

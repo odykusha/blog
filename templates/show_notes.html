@@ -2,24 +2,29 @@
 {% block body %}
 
 <!-- форма вводу тексту -->
-<form action="{{ url_for('add_note') }}" method="post"
->
+{% if session.logged_user and
+      blog_form_visible and
+      view_user == session.user_name %}
+<form action="{{ url_for('add_note') }}" method="post">
     {{ form.hidden_tag() }}
     <dl>
+        <dd> {{ form.visible_post }}відображати пост усім
         <dd> {{ form.blog_text(rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}
             {% for message in form.blog_text.errors %}
             <text>{{ message }}</text>
             {% endfor %}
+
         <dd> {{ form.submit }}
     </dl>
 </form>
-
+{% endif %}
 
 <!-- шапка комента -->
 <ul class="entries">
 
-
     {% for note in notes %}
+    {% if note.global_visible or note.id == session.user_id %}
+
     <table class="post_head">
         <li>
             <td class="left">
@@ -31,16 +36,19 @@
                     <form name="FormToSend_{{note.id}}" action="{{ url_for('del_note', note_id = note.id) }}"
                           method="post">
 
-                        {{ note.timestamp }}
-
-                        <!-- соус поста -->
-                        {% if session.logged_admin %}
-                        <a href="{{ url_for('show_note_source', note_id = note.id) }}"> source </a>
+                        {% if note.global_visible and
+                              blog_form_visible and
+                              note.user_name == session.user_name %}
+                        <div class="visible">видно всім</div>
                         {% endif %}
 
-                        <!-- кнопка видалення -->
-                        {% if session.logged_admin or session.user_name == note.user_name %}
+                        {{ note.timestamp }}
 
+                        {% if session.logged_admin or session.user_name == note.user_name %}
+                        <!-- соус поста -->
+                        <a href="{{ url_for('show_note_source', note_id = note.id) }}"> source </a>
+
+                        <!-- кнопка видалення -->
                         <a href="{{ url_for('del_note', note_id = note.id) }}"
                            onclick="document.getElementById('delete_{{note.id}}').style.display='inline'; return false;">
                             стерти </a>
@@ -65,13 +73,13 @@
     </table>
 
 
-    <!-- тіло комента -->
+<!-- тіло комента -->
     <table class="posts">
         <td>
             <pre> {{ note.text|safe }} </pre>
         </td>
     </table>
-
+    {% endif %}
 
     {% else %}
     <li><em>Неймовірно. Жодно запису!</em>
