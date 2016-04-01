@@ -196,7 +196,7 @@ def login():
             if db_login == 'admin':
                 session['logged_admin'] = True
             flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
-            return redirect(url_for('show_notes'))
+            return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
     return render_template('login.html', error=error, form=form)
 
 
@@ -256,7 +256,7 @@ def show_note_source(note_id):
             return render_template('show_note_source.html', note=note, form=form)
         else:
             flash('чужі пости підглядати не добре')
-    return redirect(url_for('show_user_notes'))
+    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
 
 
 @app.route('/add/', methods=['POST'])
@@ -294,7 +294,7 @@ def change_note(note_id):
         db.commit()
         flash('пост змінено')
         flash(form.visible_post.data)
-    return redirect(url_for('show_user_notes'))
+    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
 
 
 @app.route('/del/<int:note_id>', methods=['POST'])
@@ -315,7 +315,7 @@ def del_note(note_id):
     # перевірка видалення чужого поста
     else:
         flash('хитрожопий, ти не можеш видалити чужий пост')
-    return redirect(url_for('show_user_notes'))
+    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
 
 
 @app.route('/users/view/', methods=['GET'])
