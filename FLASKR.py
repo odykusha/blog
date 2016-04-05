@@ -196,7 +196,7 @@ def login():
             if db_login == 'admin':
                 session['logged_admin'] = True
             flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
-            return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+            return redirect(url_for('show_notes', user_name=session.get('user_name')))
     return render_template('login.html', error=error, form=form)
 
 
@@ -210,32 +210,22 @@ def logout():
 
 
 @app.route('/', methods=['GET'])
-#@logging('logged_user')
-def show_notes():
-    db = get_db()
-    form = BlogForm()
-    cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
-    notes = cur.fetchall()
-    return render_template('show_notes.html', blog_form_visible=False, view_user=None, notes=notes, form=form)
-
-
 @app.route('/users/<user_name>', methods=['GET'])
-#@logging('logged_user')
-def show_user_notes(user_name):
+def show_notes(user_name=None):
     db = get_db()
     form = BlogForm()
-    cur = db.execute(sql_scripts.get_user_notes, [user_name])
+    if user_name:
+        cur = db.execute(sql_scripts.get_user_notes, [user_name])
+        blog_form_visible = True
+    else:
+        cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
+        blog_form_visible = False
     notes = cur.fetchall()
-    return render_template('show_notes.html', blog_form_visible=True, view_user=user_name, notes=notes, form=form)
-
-    # if session.get('user_name') == user_name or session.get('logged_admin'):
-    #     db = get_db()
-    #     form = BlogForm()
-    #     cur = db.execute(sql_scripts.get_user_notes, [user_name])
-    #     notes = cur.fetchall()
-    #     return render_template('show_notes.html', blog_form_visible=True, notes=notes, form=form)
-    # else:
-    #     abort(403)
+    return render_template('show_notes.html',
+                           blog_form_visible=blog_form_visible,
+                           view_user=user_name,
+                           notes=notes,
+                           form=form)
 
 
 @app.route('/notes_source/<note_id>', methods=['GET'])
@@ -256,7 +246,7 @@ def show_note_source(note_id):
             return render_template('show_note_source.html', note=note, form=form)
         else:
             flash('чужі пости підглядати не добре')
-    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+    return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/add/', methods=['POST'])
@@ -271,7 +261,7 @@ def add_note():
                     int(form.visible_post.data)])
         db.commit()
         flash('пост додано')
-    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+    return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/change_note/<note_id>', methods=['POST'])
@@ -283,8 +273,8 @@ def change_note(note_id):
     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
     note = cur.fetchall()
     for nt in note:
-        if nt['user_id'] != session.get('user_id'):
-            return redirect(url_for('show_user_notes'))
+        if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
+            return redirect(url_for('show_notes'))
     # збереження зміненого поста
     if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.change_note,
@@ -293,8 +283,13 @@ def change_note(note_id):
                     note_id])
         db.commit()
         flash('пост змінено')
-        flash(form.visible_post.data)
-    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+
+    if note[0]['user_name']:
+        # при змінені дійсного посту, перенаправити на блог автора цього посту
+        return redirect(url_for('show_notes', user_name=note[0]['user_name']))
+    else:
+        # якщо намагались змінити не дійсний пост
+        return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/del/<int:note_id>', methods=['POST'])
@@ -315,7 +310,13 @@ def del_note(note_id):
     # перевірка видалення чужого поста
     else:
         flash('хитрожопий, ти не можеш видалити чужий пост')
-    return redirect(url_for('show_user_notes', user_name=session.get('user_name')))
+
+    if note[0]['user_name']:
+        # при видалені дійсного посту, перенаправити на блог автора цього посту
+        return redirect(url_for('show_notes', user_name=note[0]['user_name']))
+    else:
+        # якщо намагались видалити не дійсний пост
+        return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/users/view/', methods=['GET'])

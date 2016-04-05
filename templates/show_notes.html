@@ -23,7 +23,7 @@
 <ul class="entries">
 
     {% for note in notes %}
-    {% if note.global_visible or note.user_name == session.user_name %}
+    {% if note.global_visible or note.user_name == session.user_name or session.logged_admin %}
 
     <table class="post_head">
         <li>
@@ -38,7 +38,8 @@
 
                         {% if note.global_visible and
                               blog_form_visible and
-                              note.user_name == session.user_name %}
+                              (note.user_name == session.user_name or
+                              session.logged_admin) %}
                         <div class="visible">видно всім</div>
                         {% endif %}
 
