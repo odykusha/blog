@@ -12,6 +12,7 @@ from wtforms import StringField, PasswordField, SubmitField, \
 #from flask_debugtoolbar import DebugToolbarExtension
 
 import sql_scripts
+import tools
 
 ###############################################################################
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -256,7 +257,7 @@ def add_note():
     form = BlogForm()
     if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.add_note,
-                   [form.blog_text.data,
+                   [tools.get_tag(form.blog_text.data),
                     session.get('user_id'),
                     int(form.visible_post.data)])
         db.commit()
