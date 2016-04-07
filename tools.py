@@ -10,9 +10,9 @@ def get_value(word, left_symb, right_symb):
 def get_tag(some_link):
     try:
         response = requests.get(some_link)
-    # except urllib.error.URLError:
-    #     print('||*|| except', sys.exc_info()[0])
-    #     return some_link
+    except requests.exceptions.ProxyError:
+        print('||*|| except', sys.exc_info()[0])
+        return some_link
     except:
         print('||**|| except', sys.exc_info()[0])
         return some_link
