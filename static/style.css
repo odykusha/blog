@@ -163,3 +163,18 @@ header {
    background-image: -ms-linear-gradient(top, #6aa436 0%, #8dc059 100%);
    color: #fff;
    }
+
+
+
+#user_list {
+   	border-radius: 5px;
+	border: 2px solid #6495ED;
+	background-color: #BCD2EE;
+	text-align: center;
+	font-family: Garamond, serif;
+	width: 170px;
+	display: inline-block;
+	float: left;
+    margin: 20px;
+    position: fixed;
+}

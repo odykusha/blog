@@ -5,13 +5,22 @@
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
     <script type=text/javascript src="{{ url_for('static', filename='functions.js') }}"></script>
     <!--<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+  $(document).ready(function(){
+    $("#user_list_button").click(function(){
+        $("#user_list").toggle("Puff");
+    });
+});
+</script>
 </head>
 
-
+<!-- шапка -->
 <header>
 <ul class="head">
     <table class="head">
         <td>
+            <li><a href="#" id="user_list_button"> ||| </a></li>
             <li><a href="{{ url_for('show_notes') }}"> Блог </a></li>
 
         {% if session.logged_user %}
@@ -41,6 +50,10 @@
 
 <br><br>
 
+<!-- вікно з юзерами -->
+{% block users%} {% endblock %}
+
+<!-- пости -->
 <div class=page>
     {% for message in get_flashed_messages() %}
     <div class=flash>{{ message }}</div>
@@ -48,3 +61,4 @@
 
     {% block body %} {% endblock %}
 </div>
+

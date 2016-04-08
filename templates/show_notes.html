@@ -1,4 +1,17 @@
 {% extends "layout.html" %}
+
+{% block users%}
+<!-- вікно з юзерами -->
+<div id="user_list" style="display:none">
+        Виберіть користувача:<br>
+    {% for user in users %}
+        <a href="{{ url_for('show_notes', user_name = user.user_name) }}"> {{ user.user_name }} </a> <br>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+
 {% block body %}
 
 <!-- форма вводу тексту -->

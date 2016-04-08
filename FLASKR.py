@@ -222,11 +222,15 @@ def show_notes(user_name=None):
         cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
         blog_form_visible = False
     notes = cur.fetchall()
+    # user list
+    cur = db.execute(sql_scripts.get_all_users)
+    users = cur.fetchall()
     return render_template('show_notes.html',
                            blog_form_visible=blog_form_visible,
                            view_user=user_name,
                            notes=notes,
-                           form=form)
+                           form=form,
+                           users=users)
 
 
 @app.route('/notes_source/<note_id>', methods=['GET'])
