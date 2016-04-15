@@ -4,16 +4,19 @@ import functools
 import sqlite3
 
 from flask import Flask, session, g, redirect, url_for, render_template, flash, \
-                  request, abort
+                  request, abort, jsonify
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, \
                     validators, TextAreaField, BooleanField
 # from flask.ext.cache import Cache
-#from flask_debugtoolbar import DebugToolbarExtension
+# from flask_debugtoolbar import DebugToolbarExtension
 
 import sql_scripts
 import tools
 
+
+###############################################################################
+# Configuration
 ###############################################################################
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
@@ -26,7 +29,8 @@ PORT = 8080
 app = Flask(__name__)
 app.config.from_object(__name__)
 # cache = Cache(app,config={'CACHE_TYPE': 'simple'})
-#tools = DebugToolbarExtension(app)
+# tools = DebugToolbarExtension(app)
+
 
 ###############################################################################
 # WTForm's
@@ -62,9 +66,12 @@ class UserForm(Form):
 class BlogForm(Form):
     blog_text = TextAreaField("text",
         [validators.Length(max=3, message='цей грьобаний текст ніколи не відобразиться')])
-
     visible_post = BooleanField("Видний усім")
     submit = SubmitField('Добавити')
+
+    blog_text_source = TextAreaField("text")
+    visible_post_source = BooleanField("Видний усім")
+    submit_source = SubmitField('Змінити')
 
 
 ###############################################################################
@@ -221,6 +228,7 @@ def show_notes(user_name=None):
     else:
         cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
         blog_form_visible = False
+    # note list
     notes = cur.fetchall()
     # user list
     cur = db.execute(sql_scripts.get_all_users)
@@ -261,7 +269,7 @@ def add_note():
     form = BlogForm()
     if form.submit() and len(form.blog_text.data) > 0:
         db.execute(sql_scripts.add_note,
-                   [tools.get_tag(form.blog_text.data),
+                   [tools.filter(form.blog_text.data),
                     session.get('user_id'),
                     int(form.visible_post.data)])
         db.commit()
@@ -386,6 +394,41 @@ def err404(error):
 @app.errorhandler(405)
 def err405(error):
     return "Такий метод не підтримується!<br> %s" % error, 405
+
+
+###############################################################################
+# testing AJAX
+###############################################################################
+@app.route('/ajax_page')
+def ajax_page():
+    return render_template('ajax_page.html')
+
+
+@app.route('/ajax')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int) # type=int
+    return jsonify(result=a + b)
+
+
+@app.route('/ajax_notes', methods=['GET'])
+def ajax_notes():
+    note_id = request.args.get('note_id', 0, type=int)
+
+    db = get_db()
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
+    # перевірка не дійсного посту
+    if len(note) == 0:
+        flash('хуя тобі, вже нема такого поста')
+    for nt in note:
+        if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
+            text = nt['text']
+            visible = bool(nt['global_visible'])
+            return jsonify(note_text=text, visible_text=visible)
+        else:
+            flash('чужі пости підглядати не добре')
+    return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 ###############################################################################

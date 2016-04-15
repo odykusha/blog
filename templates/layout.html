@@ -3,9 +3,10 @@
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
-    <script type=text/javascript src="{{ url_for('static', filename='js/functions.js') }}"></script>
-    <script type=text/javascript src="{{ url_for('static', filename='js/app_jquery.js') }}"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script defer src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+    <script defer type=text/javascript src="{{ url_for('static', filename='js/app_jquery.js') }}"></script>
+    <!--<script defer type=text/javascript src="{{ url_for('static', filename='js/functions.js') }}"></script>-->
 </head>
 
 <!-- шапка -->
@@ -18,22 +19,22 @@
 
         {% if session.logged_user %}
             <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мій блог </a></li>
-            <li><div class="active"> ви зайшли як: {{ session.user_name }} </div></li>
+            <li><div class="green_button"> ви зайшли як: {{ session.user_name }} </div></li>
         </td>
 
             {% if session.logged_admin %}
             <td>
-                <li style="float:right"><a class="active" href="{{ url_for('show_users') }}"> юзери </a></li>
+                <li style="float:right"><a class="green_button" href="{{ url_for('show_users') }}"> юзери </a></li>
             </td>
             {% endif %}
 
         <td class="head">
-            <li style="float:right"><a class="active" href="{{ url_for('logout') }} "> вийти </a></li>
+            <li style="float:right"><a class="green_button" href="{{ url_for('logout') }} "> вийти </a></li>
         </td>
 
         {% else %}
         <td>
-            <li style="float:right"><a class="active" href="{{ url_for('login') }} "> зайти </a></li>
+            <li style="float:right"><a class="green_button" href="{{ url_for('login') }} "> зайти </a></li>
         </td>
         {% endif %}
 

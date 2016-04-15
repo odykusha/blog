@@ -47,16 +47,16 @@
         <span id="delete_{{user.id}}" style="display:none;">
         <!-- так -->
         <a href="#" onclick="document.FormForDeleteUser_{{user.id}}.submit();">
-            <abbr title="Так">
-                <b class="green"> &#8730; </b>
+            <abbr title="Видалити">
+                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
             </abbr>
         </a>
         /
         <!-- ні -->
         <a href="#"
            onclick="document.getElementById('delete_{{user.id}}').style.display='none'; return false;">
-            <abbr title="Ні">
-                <b class="red"> &times; </b>
+            <abbr title="Відмінити">
+                <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
             </abbr>
         </a>
         </span>

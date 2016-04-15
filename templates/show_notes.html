@@ -2,7 +2,7 @@
 
 {% block users%}
 <!-- вікно з юзерами -->
-<div id="user_list" style="display:none">
+<div id="user_list"> <!-- style="display:none" -->
         Виберіть користувача:<br>
     {% for user in users %}
         <a href="{{ url_for('show_notes', user_name = user.user_name) }}"> {{ user.user_name }} </a> <br>
@@ -41,7 +41,13 @@
     <table class="post_head">
         <li>
             <td class="left">
-                <h2 class="post"> {{ note.user_name }} </h2>
+                <h2 class="post">
+                    {{ note.user_name }}
+                    {% if session.logged_admin or session.user_name == note.user_name %}
+                    <!-- соус поста -->
+                    <img src="{{ url_for('static', filename='img/edit.png')}}" name="edit_this_post" id="{{ note.id }}" />
+                    {% endif %}
+                </h2>
             </td>
 
             <td class="right">
@@ -68,14 +74,16 @@
                             стерти </a>
                         <span id="delete_{{note.id}}" style="display:none;">
                         <a href="#" onclick="document.FormToSend_{{note.id}}.submit();">
-                            <abbr title="Так">
-                                <b class="green"> &#8730; </b>
+                            <abbr title="Видалити">
+                                <!--<b class="green"> &#8730; </b>-->
+                                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
                             </abbr>
                         </a>
                             /
                         <a href="#" onclick="document.getElementById('delete_{{note.id}}').style.display='none'; return false;">
-                            <abbr title="Ні">
-                                <b class="red"> &times; </b>
+                            <abbr title="Відмінити">
+                                <!--<b class="red"> &times; </b>-->
+                                <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
                             </abbr>
                         </a>
                         </span>
@@ -91,6 +99,12 @@
     <table class="posts">
         <td>
             <pre> {{ note.text|safe }} </pre>
+
+            <div name="hidden_change_post" id="{{ note.id }}" class="hidden_post">
+                {{ form.visible_post_source }}відображати пост усім <br>
+                {{ form.blog_text_source(rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}<br>
+                {{ form.submit_source }}
+            </div>
         </td>
     </table>
     {% endif %}
