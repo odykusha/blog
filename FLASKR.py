@@ -348,7 +348,7 @@ def err405(error):
 
 
 ###############################################################################
-# testing AJAX
+# AJAX function
 ###############################################################################
 @app.route('/ajax_view_note', methods=['GET'])
 def ajax_view_note():
@@ -400,6 +400,30 @@ def ajax_change_note():
         return jsonify(status='OK', message='пост ID:' + note_id + ', успішно змінено')
     # по невідомим причинам
     return jsonify(status='ERR', message='я хз чому так вийшло')
+
+
+@app.route('/ajax_delete_note', methods=['POST'])
+def ajax_delete_note():
+    note_id = request.form['submit_id']
+    db = get_db()
+
+    # дістаємо логін користувача з ІД посту
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
+    # перевірка видалення не дійсного посту
+    if len(note) == 0:
+        return jsonify(status='ERR', message='хуя тобі, вже нема такого поста')
+
+    # видаляти може лише автор, або адмін
+    elif note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
+        db.execute(sql_scripts.del_note, [note_id])
+        db.commit()
+        return jsonify(status='OK', message='пост ID:' + note_id + ', успішно видалений')
+
+    # перевірка видалення чужого поста
+    else:
+        return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий пост')
+
 
 #  sqlite3.OperationalError: database is locked
 

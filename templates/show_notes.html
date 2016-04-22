@@ -67,17 +67,17 @@
                         {% if session.logged_admin or session.user_name == note.user_name %}
                         <!-- кнопка видалення -->
                         <a href="{{ url_for('del_note', note_id = note.id) }}"
-                           onclick="document.getElementById('delete_{{note.id}}').style.display='inline'; return false;">
+                           onclick="document.getElementsByName('delete_{{note.id}}')[0].style.display='inline'; return false;">
                             стерти </a>
-                        <span id="delete_{{note.id}}" style="display:none;">
-                        <a href="#" onclick="document.FormToSend_{{note.id}}.submit();">
+                        <span id="{{note.id}}" name='delete_{{note.id}}' style="display:none;">
+                        <a href="#" name='delete_note' onclick="document.FormToSend_{{0}}.submit();">
                             <abbr title="Видалити">
                                 <!--<b class="green"> &#8730; </b>-->
                                 <img src="{{ url_for('static', filename='img/trash.png') }}"/>
                             </abbr>
                         </a>
                             /
-                        <a href="#" onclick="document.getElementById('delete_{{note.id}}').style.display='none'; return false;">
+                        <a href="#" onclick="document.getElementsByName('delete_{{note.id}}')[0].style.display='none'; return false;">
                             <abbr title="Відмінити">
                                 <!--<b class="red"> &times; </b>-->
                                 <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
