@@ -55,7 +55,7 @@
 
     <!-- default flash message -->
     {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
+    <div class=flash style="display: block;">{{ message }}</div>
     {% endfor %}
 
     {% block body %} {% endblock %}

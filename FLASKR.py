@@ -359,18 +359,16 @@ def ajax_view_note():
     note = cur.fetchall()
     # перевірка не дійсного посту
     if len(note) == 0:
-        # print('||DEBUG|view|', note_id, 1)
         return jsonify(status='ERR', message='хуя тобі, вже нема такого поста')
+
     for nt in note:
         if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
             text = nt['text']
             visible = bool(nt['global_visible'])
-            # print('||DEBUG|view|', note_id, 2)
             return jsonify(status='OK', note_text=text, visible_text=visible)
         else:
-            # print('||DEBUG|view|', note_id, 3)
             return jsonify(status='ERR', message='чужі пости підглядати не добре')
-    # print('||DEBUG|view|', note_id, 4)
+
     return jsonify(status='ERR', message='невідома помилка')
 
 
@@ -391,7 +389,6 @@ def ajax_change_note():
     note = cur.fetchall()
     for nt in note:
         if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
-            # print('||DEBUG|change|', note_id, 1)
             return jsonify(status='ERR', message='От скотиняка нагла')
     # збереження зміненого поста
     if form.submit_source() and len(note_text) > 0:
@@ -400,15 +397,11 @@ def ajax_change_note():
                     int(note_visible),
                     note_id])
         db.commit()
-        # print('||DEBUG|change|', note_id, 2)
-        return jsonify(status='OK', message='пост успішно змінено')
-
+        return jsonify(status='OK', message='пост ID:' + note_id + ', успішно змінено')
     # по невідомим причинам
     return jsonify(status='ERR', message='я хз чому так вийшло')
 
 #  sqlite3.OperationalError: database is locked
-
-
 
 
 ###############################################################################

@@ -8,8 +8,12 @@
 // ------------------------------------------------------------------- //
 // ajax запит на відображення соуса поста
     $('img[name="edit_this_post"]').click(function(){   //.posts
-        $('.flash').hide();
         var note_id = $(this).attr("id");
+
+        // hide flash
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
 
         // вихід при згортанні форми редагування
         var res = $('.posts').find('div[id="' + note_id + '"]').attr('style');
@@ -29,15 +33,16 @@
         // в случае успешной передачи, выполняем функцию success иначе error
         success: function(data) {
             if (data.status == 'OK') {
+                $('.hidden_post').hide();
                 $('.posts').find('div[id="' + note_id + '"]').toggle('blind');
                 $("div[id=" + note_id + "]").find("#blog_text_source").text(data.note_text);
                 $("div[id=" + note_id + "]").find("#visible_post_source").attr('checked', data.visible_text);
-                console.log("|AJAX|view|OK|сформовано запит|> ID:", note_id);
+                console.log("|AJAX|view|OK|сформовано запит| ID:", note_id);
                 }
 
             if (data.status == 'ERR') {
                 // view error message
-                $('.message_error').show();
+                $('.message_error').show('blind');
                 $('.message_error').text(data.message);
                 console.log('|AJAX|view|ERROR|>', data.message);
                 }
@@ -45,7 +50,7 @@
             },
 
         error: function (textStatus, errorThrown) {
-            $('.message_error').show();
+            $('.message_error').show('blind');
             $('.message_error').text('шось зовсім пішло не так :(((');
             console.log("|AJAX|view|ERROR|шось зовсім пішло не так :(((", errorThrown);
             }
@@ -55,7 +60,6 @@
 // ------------------------------------------------------------------- //
 // ajax change note
     $('input[name="submit_source"]').click(function() {
-        $('.flash').hide();
         var submit_id = $(this).parent().attr("id");
         var note_text = $("div[id=" + submit_id + "]").find("#blog_text_source").val();
         var note_visible = $("div[id=" + submit_id + "]").find("#visible_post_source:checked").val();
@@ -63,6 +67,12 @@
             {note_visible = 'True'}
         else
             {note_visible = 'False'}
+
+        // hide flash
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
+
 
         $.ajax({
             url: '/ajax_change_note',
@@ -74,7 +84,6 @@
                     },
             type: 'POST',
             success: function(data) {
-//                console.log('|AJAX|OK|змінено запис|', submit_id, data)
                 if (data.status == 'OK') {
                     // відобреження зміни
                     $("table[id=" + submit_id + "]").find("pre").text(note_text)
@@ -86,21 +95,21 @@
                     $('.posts').find('div[id="' + submit_id + '"]').toggle('blind');
 
                     // view log
-                    $('.message_ok').show();
-                    $('.message_ok').text('запис успішно змінено');
+                    $('.message_ok').show('blind');
+                    $('.message_ok').text(data.message);
                     console.log('|AJAX|change|OK|змінено запис|', submit_id);
                     }
 
                 if (data.status == 'ERR') {
                     // view error message
-                    $('.message_error').show();
+                    $('.message_error').show('blind');
                     $('.message_error').text(data.message);
                     console.log('|AJAX|change|ERROR|>', data.message);
                     }
 
             },
             error: function(error) {
-                $('.message_error').show();
+                $('.message_error').show('blind');
                 $('.message_error').text('шось зовсім пішло не так :(((');
                 console.log("|AJAX|change|ERROR|шось зовсім пішло не так :(((", errorThrown);
             }
