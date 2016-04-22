@@ -38,7 +38,7 @@
     {% for note in notes %}
     {% if note.global_visible or note.user_name == session.user_name or session.logged_admin %}
 
-    <table class="post_head">
+    <table class="post_head" id="{{ note.id }}">
         <li>
             <td class="left">
                 <h2 class="post">
@@ -65,9 +65,6 @@
                         {{ note.timestamp }}
 
                         {% if session.logged_admin or session.user_name == note.user_name %}
-                        <!-- соус поста -->
-                        <a href="{{ url_for('show_note_source', note_id = note.id) }}"> source </a>
-
                         <!-- кнопка видалення -->
                         <a href="{{ url_for('del_note', note_id = note.id) }}"
                            onclick="document.getElementById('delete_{{note.id}}').style.display='inline'; return false;">
@@ -96,11 +93,11 @@
 
 
 <!-- тіло комента -->
-    <table class="posts">
+    <table class="posts" id="{{ note.id }}">
         <td>
             <pre> {{ note.text|safe }} </pre>
 
-            <div name="hidden_change_post" id="{{ note.id }}" class="hidden_post">
+            <div name="hidden_change_post" id="{{ note.id }}" class="hidden_post" role="form">
                 {{ form.visible_post_source }}відображати пост усім <br>
                 {{ form.blog_text_source(rows=7, cols=70, placeholder="Текст напишіть тут. Можливе використання тегів") }}<br>
                 {{ form.submit_source }}

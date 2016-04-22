@@ -241,25 +241,25 @@ def show_notes(user_name=None):
                            users=users)
 
 
-@app.route('/notes_source/<note_id>', methods=['GET'])
-@logging('logged_user')
-def show_note_source(note_id):
-    db = get_db()
-    form = BlogForm()
-    # дістаємо логін користувача з ІД посту
-    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
-    note = cur.fetchall()
-    # перевірка не дійсного посту
-    if len(note) == 0:
-        flash('хуя тобі, вже нема такого поста')
-    for nt in note:
-        if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
-            form.blog_text.data = nt['text']
-            form.visible_post.data = bool(nt['global_visible'])
-            return render_template('show_note_source.html', note=note, form=form)
-        else:
-            flash('чужі пости підглядати не добре')
-    return redirect(url_for('show_notes', user_name=session.get('user_name')))
+# @app.route('/notes_source/<note_id>', methods=['GET'])
+# @logging('logged_user')
+# def show_note_source(note_id):
+#     db = get_db()
+#     form = BlogForm()
+#     # дістаємо логін користувача з ІД посту
+#     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+#     note = cur.fetchall()
+#     # перевірка не дійсного посту
+#     if len(note) == 0:
+#         flash('хуя тобі, вже нема такого поста')
+#     for nt in note:
+#         if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
+#             form.blog_text.data = nt['text']
+#             form.visible_post.data = bool(nt['global_visible'])
+#             return render_template('show_note_source.html', note=note, form=form)
+#         else:
+#             flash('чужі пости підглядати не добре')
+#     return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/add/', methods=['POST'])
@@ -277,32 +277,32 @@ def add_note():
     return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
-@app.route('/change_note/<note_id>', methods=['POST'])
-@logging("logged_user")
-def change_note(note_id):
-    db = get_db()
-    form = BlogForm()
-    # змінювати пост може лише його автор
-    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
-    note = cur.fetchall()
-    for nt in note:
-        if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
-            return redirect(url_for('show_notes'))
-    # збереження зміненого поста
-    if form.submit() and len(form.blog_text.data) > 0:
-        db.execute(sql_scripts.change_note,
-                   [form.blog_text.data,
-                    int(form.visible_post.data),
-                    note_id])
-        db.commit()
-        flash('пост змінено')
-
-    if note[0]['user_name']:
-        # при змінені дійсного посту, перенаправити на блог автора цього посту
-        return redirect(url_for('show_notes', user_name=note[0]['user_name']))
-    else:
-        # якщо намагались змінити не дійсний пост
-        return redirect(url_for('show_notes', user_name=session.get('user_name')))
+# @app.route('/change_note/<note_id>', methods=['POST'])
+# @logging("logged_user")
+# def change_note(note_id):
+#     db = get_db()
+#     form = BlogForm()
+#     # змінювати пост може лише його автор
+#     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+#     note = cur.fetchall()
+#     for nt in note:
+#         if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
+#             return redirect(url_for('show_notes'))
+#     # збереження зміненого поста
+#     if form.submit() and len(form.blog_text.data) > 0:
+#         db.execute(sql_scripts.change_note,
+#                    [form.blog_text.data,
+#                     int(form.visible_post.data),
+#                     note_id])
+#         db.commit()
+#         flash('пост змінено')
+#
+#     if note[0]['user_name']:
+#         # при змінені дійсного посту, перенаправити на блог автора цього посту
+#         return redirect(url_for('show_notes', user_name=note[0]['user_name']))
+#     else:
+#         # якщо намагались змінити не дійсний пост
+#         return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/del/<int:note_id>', methods=['POST'])
@@ -399,20 +399,8 @@ def err405(error):
 ###############################################################################
 # testing AJAX
 ###############################################################################
-@app.route('/ajax_page')
-def ajax_page():
-    return render_template('ajax_page.html')
-
-
-@app.route('/ajax')
-def add_numbers():
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int) # type=int
-    return jsonify(result=a + b)
-
-
-@app.route('/ajax_notes', methods=['GET'])
-def ajax_notes():
+@app.route('/ajax_view_note', methods=['GET'])
+def ajax_view_note():
     note_id = request.args.get('note_id', 0, type=int)
 
     db = get_db()
@@ -420,15 +408,56 @@ def ajax_notes():
     note = cur.fetchall()
     # перевірка не дійсного посту
     if len(note) == 0:
-        flash('хуя тобі, вже нема такого поста')
+        # print('||DEBUG|view|', note_id, 1)
+        return jsonify(status='ERR', message='хуя тобі, вже нема такого поста')
     for nt in note:
         if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
             text = nt['text']
             visible = bool(nt['global_visible'])
-            return jsonify(note_text=text, visible_text=visible)
+            # print('||DEBUG|view|', note_id, 2)
+            return jsonify(status='OK', note_text=text, visible_text=visible)
         else:
-            flash('чужі пости підглядати не добре')
-    return redirect(url_for('show_notes', user_name=session.get('user_name')))
+            # print('||DEBUG|view|', note_id, 3)
+            return jsonify(status='ERR', message='чужі пости підглядати не добре')
+    # print('||DEBUG|view|', note_id, 4)
+    return jsonify(status='ERR', message='невідома помилка')
+
+
+@app.route('/ajax_change_note', methods=['POST'])
+def ajax_change_note():
+    note_id      = request.form['submit_id']
+    note_text    = request.form['note_text']
+    note_visible = request.form['note_visible']
+    if note_visible == 'True':
+        note_visible = True
+    else:
+        note_visible = False
+    db = get_db()
+    form = BlogForm()
+
+    # змінювати пост може лише його автор
+    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
+    note = cur.fetchall()
+    for nt in note:
+        if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
+            # print('||DEBUG|change|', note_id, 1)
+            return jsonify(status='ERR', message='От скотиняка нагла')
+    # збереження зміненого поста
+    if form.submit_source() and len(note_text) > 0:
+        db.execute(sql_scripts.change_note,
+                   [note_text,
+                    int(note_visible),
+                    note_id])
+        db.commit()
+        # print('||DEBUG|change|', note_id, 2)
+        return jsonify(status='OK', message='пост успішно змінено')
+
+    # по невідомим причинам
+    return jsonify(status='ERR', message='я хз чому так вийшло')
+
+#  sqlite3.OperationalError: database is locked
+
+
 
 
 ###############################################################################

@@ -21,7 +21,8 @@ li.entries      { margin: 0.8em 1.2em;}
 .add-entry dl   { font-weight: bold; }
 .metanav        { text-align: right; font-size: 0.8em; padding: 0.5em;}
 .flash          { background: #cee5F5; padding: 0.5em; border: 1px solid #aacbe2; }
-.error          { background: #f0d6d6; padding: 0.5em; }
+.message_error  { background: #f0d6d6; padding: 0.5em; border: 1px solid #aacbe2; display: none; }
+.message_ok     { background: #D8F3DC; padding: 0.5em; border: 1px solid #AAE2B1; display: none; }
 .login          { text-align: center;}
 .posts          { border:1px solid; width:100%; solid grey; border-collapse:collapse; table-layout:fixed;  background:#fff; border: 1px solid #d8d8d8;}
 .post_head      { border:2px; width:100%; table-layout:fixed; padding: 10px 0px 0px; }
