@@ -38,14 +38,14 @@
                 $('.posts').find('div[id="' + note_id + '"]').toggle('blind');
                 $("div[id=" + note_id + "]").find("#blog_text_source").text(data.note_text);
                 $("div[id=" + note_id + "]").find("#visible_post_source").attr('checked', data.visible_text);
-                console.log("|AJAX|view|OK|сформовано запит| ID:", note_id);
+                console.log("|AJAX|view|OK|сформовано запит, ID:", note_id);
                 }
 
             if (data.status == 'ERR') {
                 // відображаємо повідомлення з помилкою
                 $('.message_error').show('blind');
                 $('.message_error').text(data.message);
-                console.log('|AJAX|view|ERROR|>', data.message);
+                console.log('|AJAX|view|ERROR||', data.message);
                 }
 
             },
@@ -68,12 +68,6 @@
             {note_visible = 'True'}
         else
             {note_visible = 'False'}
-
-//        // приховуємо дефолтне flash вікно
-//        var flash = $('.flash').attr('style');
-//        if (flash == 'display: block;') {
-//            $('.flash').hide('blind'); }
-
 
         $.ajax({
             url: '/ajax_change_note',
@@ -100,14 +94,14 @@
                     // показуємо повідомлення про успішність виконання зміни
                     $('.message_ok').show('blind');
                     $('.message_ok').text(data.message);
-                    console.log('|AJAX|change|OK|змінено запис|', submit_id);
+                    console.log('|AJAX|change|OK|змінено запис, ID:', submit_id);
                     }
 
                 if (data.status == 'ERR') {
                     // відображаємо повідомлення з помилкою
                     $('.message_error').show('blind');
                     $('.message_error').text(data.message);
-                    console.log('|AJAX|change|ERROR|>', data.message);
+                    console.log('|AJAX|change|ERROR||', data.message);
                     }
                 },
 
@@ -143,14 +137,14 @@
                     // показуємо повідомлення про успішність видалення запису
                     $('.message_ok').show('blind');
                     $('.message_ok').text(data.message);
-                    console.log('|AJAX|delete|OK|запис видалено|', submit_id);
+                    console.log('|AJAX|delete|OK|запис видалено, ID:', submit_id);
                     }
 
                 if (data.status == 'ERR') {
                     // відображаємо повідомлення з помилкою
                     $('.message_error').show('blind');
                     $('.message_error').text(data.message);
-                    console.log('|AJAX|delete|ERROR|>', data.message);
+                    console.log('|AJAX|delete|ERROR||', data.message);
                     }
                 },
 
@@ -166,8 +160,126 @@
 
 
 // ------------------------------------------------------------------- //
+// ajax запит на створення запису
+    $("input[name='submit']").click(function() {
+        var note_text = $("textarea[name='blog_text']").val();
+        var note_visible = $("input[name='visible_post']:checked").val();
+        if (note_visible)
+            {note_visible = 'True'}
+        else
+            {note_visible = 'False'}
+        console.log('|AJAX|create|DEBUG|', note_text, note_visible);
 
+        // приховуємо дефолтне flash вікно
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
+
+        $.ajax({
+            url: '/ajax_create_note',
+            data: {
+                note_text,
+                note_visible
+                },
+            type: 'POST',
+            success: function(data){
+                if (data.status == 'OK') {
+                    // відображаємо новий запис
+                    // формуємо html код
+                    // запихаємо його в початок
+
+                    $('.entries').prepend(
+'<table class="post_head" id="' + data.note_id + '">'+
+        '<li>'+
+            '<td class="left">'+
+                '<h2 class="post">'+
+                    data.user_name +
+                    //'<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" />'+
+                '</h2>'+
+            '</td>'+
+            '<td class="right">'+
+                '<small>'+
+                    '<form name="FormToSend_'+ data.note_id + '" action="/del/'+ data.note_id +'"'+
+                          'method="post">'+
+                        '<div class="visible" style="display: none;">видно всім</div>'+
+                        data.timestamp +
+/*
+                        '<a href="/del/'+ data.note_id +'"'+
+                           'onclick="document.getElementsByName(\'delete_'+ data.note_id +'\')[0].style.display=\'inline\'; return false;">'+
+                            'стерти </a>'+
+                        '<span id="'+ data.note_id + '" name="delete_'+ data.note_id +'" style="display:none;">'+
+                        '<a href="#" name="delete_note" onclick="document.FormToSend_0.submit();">'+
+                            '<abbr title="Видалити">'+
+                                '<img src="/static/img/trash.png"/>'+
+                            '</abbr>'+
+                        '</a>'+
+                            '/'+
+                        '<a href="#" onclick="document.getElementsByName(\'delete_'+ data.note_id +'\')[0].style.display=\'none\'; return false;">'+
+                            '<abbr title="Відмінити">'+
+                                '<img src="/static/img/cancel.png"/>'+
+                            '</abbr>'+
+                        '</a>'+
+                        '</span>'+
+*/
+                    '</form>'+
+                '</small>'+
+            '</td>'+
+    '</table>'+
+    '<table class="posts" id="'+ data.note_id +'">'+
+        '<td>'+
+            '<pre>'+ note_text +'</pre>'+
+            '<div name="hidden_change_post" id="'+ data.note_id + '" class="hidden_post" role="form">'+
+                '<input id="visible_post_source" name="visible_post_source" type="checkbox" value="y">відображати пост усім <br>'+
+                '<textarea cols="70" id="blog_text_source" name="blog_text_source" placeholder="Текст напишіть тут. Можливе використання тегів" rows="7"></textarea><br>'+
+                '<input id="submit_source" name="submit_source" type="submit" value="Змінити">'+
+            '</div>'+
+        '</td>'+
+    '</table>');
+
+                    // відображення visible текста
+                    if (note_visible == 'True')
+                        {$("table[id=" + data.note_id + "]").find(".visible").show();}
+                    else
+                        {$("table[id=" + data.note_id + "]").find(".visible").hide();}
+
+                    // очищаємо форму ведення
+                    $("textarea[name='blog_text']").val('');
+                    if (note_visible == 'True') {
+                        $("input[name='visible_post']").click(); }
+
+
+                    // показуємо повідомлення про успішність видалення запису
+                    $('.message_ok').show('blind');
+                    $('.message_ok').text(data.message);
+                    console.log('|AJAX|create|OK|запис створено');
+                    }
+
+                if (data.status == 'ERR') {
+                    // відображаємо повідомлення з помилкою
+                    $('.message_error').show('blind');
+                    $('.message_error').text(data.message);
+                    console.log('|AJAX|create|ERROR||', data.message);
+                    }
+                },
+
+            error: function(error) {
+                $('.message_error').show('blind');
+                $('.message_error').text('шось зовсім пішло не так :(((');
+                console.log("|AJAX|create|ERROR|шось зовсім пішло не так :(((", errorThrown);
+                }
+
+        });
+
+    });
+
+
+// ------------------------------------------------------------------- //
 }
 
 // ------------------------------------------------------------------- //
 $(document).ready(main);
+
+
+
+
+

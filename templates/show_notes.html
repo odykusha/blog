@@ -18,7 +18,7 @@
 {% if session.logged_user and
       blog_form_visible and
       view_user == session.user_name %}
-<form action="{{ url_for('add_note') }}" method="post">
+
     {{ form.hidden_tag() }}
     <dl>
         <dd> {{ form.visible_post }}відображати пост усім
@@ -29,7 +29,7 @@
 
         <dd> {{ form.submit }}
     </dl>
-</form>
+
 {% endif %}
 
 <!-- шапка комента -->
@@ -60,6 +60,8 @@
                               (note.user_name == session.user_name or
                               session.logged_admin) %}
                         <div class="visible">видно всім</div>
+                        {% else %}
+                        <div class="visible" style="display: none;">видно всім</div>
                         {% endif %}
 
                         {{ note.timestamp }}

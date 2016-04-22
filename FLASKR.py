@@ -351,6 +351,7 @@ def err405(error):
 # AJAX function
 ###############################################################################
 @app.route('/ajax_view_note', methods=['GET'])
+@logging('logged_user')
 def ajax_view_note():
     note_id = request.args.get('note_id', 0, type=int)
 
@@ -373,6 +374,7 @@ def ajax_view_note():
 
 
 @app.route('/ajax_change_note', methods=['POST'])
+@logging('logged_user')
 def ajax_change_note():
     note_id      = request.form['submit_id']
     note_text    = request.form['note_text']
@@ -403,6 +405,7 @@ def ajax_change_note():
 
 
 @app.route('/ajax_delete_note', methods=['POST'])
+@logging('logged_user')
 def ajax_delete_note():
     note_id = request.form['submit_id']
     db = get_db()
@@ -423,6 +426,41 @@ def ajax_delete_note():
     # перевірка видалення чужого поста
     else:
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий пост')
+
+
+@app.route('/ajax_create_note', methods=['POST'])
+@logging('logged_user')
+def ajax_create_note():
+    note_text    = request.form['note_text']
+    note_visible = request.form['note_visible']
+    if note_visible == 'True':
+        note_visible = True
+    else:
+        note_visible = False
+
+    db = get_db()
+    form = BlogForm()
+    if form.submit() and len(note_text) > 0:
+        db.execute(sql_scripts.add_note,
+                   [tools.filter(note_text),
+                    session.get('user_id'),
+                    int(note_visible)])
+        db.commit()
+    # take: note_id, user_name, timestamp
+        cur = db.execute(sql_scripts.get_user_notes,
+                        [session.get('user_name')])
+        note = cur.fetchall()
+
+        user_name = session.get('user_name')
+        timestamp = note[0]['timestamp']
+        note_id   = note[0]['id']
+
+        return jsonify(status='OK', message='пост успішно додано',
+            user_name=user_name,
+            timestamp=timestamp,
+            note_id=note_id)
+    return jsonify(status='ERR', message='щось пішло не так')
+
 
 
 #  sqlite3.OperationalError: database is locked

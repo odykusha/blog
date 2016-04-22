@@ -1,6 +1,5 @@
 body            { font-family: sans-serif; background: #eee; }
 a.post          { color: #fff; }
-a:link          { color: #08409A; }
 
 h1.post         { border-bottom: 2px solid #444444; font-family: 'Georgia', serif; margin: 0; }
 h2.post         { font-size: 1em; color: #08409A; font-family: 'Georgia', serif; margin: 0;}
