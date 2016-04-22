@@ -241,27 +241,6 @@ def show_notes(user_name=None):
                            users=users)
 
 
-# @app.route('/notes_source/<note_id>', methods=['GET'])
-# @logging('logged_user')
-# def show_note_source(note_id):
-#     db = get_db()
-#     form = BlogForm()
-#     # дістаємо логін користувача з ІД посту
-#     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
-#     note = cur.fetchall()
-#     # перевірка не дійсного посту
-#     if len(note) == 0:
-#         flash('хуя тобі, вже нема такого поста')
-#     for nt in note:
-#         if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
-#             form.blog_text.data = nt['text']
-#             form.visible_post.data = bool(nt['global_visible'])
-#             return render_template('show_note_source.html', note=note, form=form)
-#         else:
-#             flash('чужі пости підглядати не добре')
-#     return redirect(url_for('show_notes', user_name=session.get('user_name')))
-
-
 @app.route('/add/', methods=['POST'])
 @logging('logged_user')
 def add_note():
@@ -275,34 +254,6 @@ def add_note():
         db.commit()
         flash('пост додано')
     return redirect(url_for('show_notes', user_name=session.get('user_name')))
-
-
-# @app.route('/change_note/<note_id>', methods=['POST'])
-# @logging("logged_user")
-# def change_note(note_id):
-#     db = get_db()
-#     form = BlogForm()
-#     # змінювати пост може лише його автор
-#     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
-#     note = cur.fetchall()
-#     for nt in note:
-#         if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
-#             return redirect(url_for('show_notes'))
-#     # збереження зміненого поста
-#     if form.submit() and len(form.blog_text.data) > 0:
-#         db.execute(sql_scripts.change_note,
-#                    [form.blog_text.data,
-#                     int(form.visible_post.data),
-#                     note_id])
-#         db.commit()
-#         flash('пост змінено')
-#
-#     if note[0]['user_name']:
-#         # при змінені дійсного посту, перенаправити на блог автора цього посту
-#         return redirect(url_for('show_notes', user_name=note[0]['user_name']))
-#     else:
-#         # якщо намагались змінити не дійсний пост
-#         return redirect(url_for('show_notes', user_name=session.get('user_name')))
 
 
 @app.route('/del/<int:note_id>', methods=['POST'])
