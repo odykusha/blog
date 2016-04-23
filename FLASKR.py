@@ -23,7 +23,7 @@ DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
-HOST = '0.0.0.0'
+HOST = '127.0.0.1'
 PORT = 80
 
 app = Flask(__name__)
@@ -306,8 +306,45 @@ def err405(error):
 
 
 ###############################################################################
-# AJAX function
+# AJAX note function
 ###############################################################################
+@app.route('/ajax_create_note', methods=['POST'])
+def ajax_create_note():
+    note_text    = request.form['note_text']
+    note_visible = request.form['note_visible']
+    if note_visible == 'True':
+        note_visible = True
+    else:
+        note_visible = False
+
+    db = get_db()
+    form = BlogForm()
+    # перевірка на те, що користувач авторизувався
+    if not session.get('logged_user'):
+        return jsonify(status='ERR', message='спочатку необхідно авторизуватись')
+
+    if form.submit() and len(note_text) > 0:
+        db.execute(sql_scripts.add_note,
+                   [tools.filter(note_text),
+                    session.get('user_id'),
+                    int(note_visible)])
+        db.commit()
+        # take: note_id, user_name, timestamp
+        cur = db.execute(sql_scripts.get_user_notes,
+                        [session.get('user_name')])
+        note = cur.fetchall()
+
+        user_name = session.get('user_name')
+        timestamp = note[0]['timestamp']
+        note_id   = note[0]['id']
+
+        return jsonify(status='OK', message='запис успішно додано',
+            user_name=user_name,
+            timestamp=timestamp,
+            note_id=note_id)
+    return jsonify(status='ERR', message='щось пішло не так')
+
+
 @app.route('/ajax_view_note', methods=['GET'])
 def ajax_view_note():
     note_id = request.args.get('note_id', 0, type=int)
@@ -381,44 +418,6 @@ def ajax_delete_note():
     # перевірка видалення чужого запису
     else:
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
-
-
-@app.route('/ajax_create_note', methods=['POST'])
-def ajax_create_note():
-    note_text    = request.form['note_text']
-    note_visible = request.form['note_visible']
-    if note_visible == 'True':
-        note_visible = True
-    else:
-        note_visible = False
-
-    db = get_db()
-    form = BlogForm()
-    # перевірка на те, що користувач авторизувався
-    if not session.get('logged_user'):
-        return jsonify(status='ERR', message='спочатку необхідно авторизуватись')
-
-    if form.submit() and len(note_text) > 0:
-        db.execute(sql_scripts.add_note,
-                   [tools.filter(note_text),
-                    session.get('user_id'),
-                    int(note_visible)])
-        db.commit()
-        # take: note_id, user_name, timestamp
-        cur = db.execute(sql_scripts.get_user_notes,
-                        [session.get('user_name')])
-        note = cur.fetchall()
-
-        user_name = session.get('user_name')
-        timestamp = note[0]['timestamp']
-        note_id   = note[0]['id']
-
-        return jsonify(status='OK', message='запис успішно додано',
-            user_name=user_name,
-            timestamp=timestamp,
-            note_id=note_id)
-    return jsonify(status='ERR', message='щось пішло не так')
-
 
 
 #  sqlite3.OperationalError: database is locked

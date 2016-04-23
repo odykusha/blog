@@ -26,8 +26,8 @@ li.entries      { margin: 0.8em 1.2em;}
 .red            { color: red; font-size: 19px;}
 .green          { color: green; font-size: 19px;}
 .visible        { color: #9743FF; }
+.id_note        { color: rgba(0,0,0,0.4); }
 .hidden_post    { display: none; background-color: #BDBDBD; }
-
 
 
 ul.head { list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333; }
@@ -94,6 +94,7 @@ header {
 }
 
 .message_ok {
+    display: none;
     display: none;
 	background: #D8F3DC;
 	padding: 0.5em;

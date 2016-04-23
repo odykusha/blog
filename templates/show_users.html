@@ -42,27 +42,21 @@
         <!-- блок видалення юзера -->
         <td>
         <form name="FormForDeleteUser_{{user.id}}" action="{{ url_for('del_users', us_id = user.id) }}" method="post">
-            <a href="{{ url_for('del_users', us_id = user.id) }}"
-               onclick="document.getElementById('delete_{{user.id}}').style.display='inline'; return false;">видалити</a>
-        <span id="delete_{{user.id}}" style="display:none;">
-        <!-- так -->
-        <a href="#" onclick="document.FormForDeleteUser_{{user.id}}.submit();">
-            <abbr title="Видалити">
-                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
-            </abbr>
-        </a>
-        /
-        <!-- ні -->
-        <a href="#"
-           onclick="document.getElementById('delete_{{user.id}}').style.display='none'; return false;">
-            <abbr title="Відмінити">
-                <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
-            </abbr>
-        </a>
-        </span>
+            <!-- кнопка видалення -->
+                        <a name="delete_everything" id="{{user.id}}"><u> видалити </u></a>
+                        <span id="{{user.id}}" name='delete_hide_form' style="display:none;">
+                                <a onclick="document.FormForDeleteUser_{{user.id}}.submit();">
+                            <abbr title="Видалити" name='delete_yes'>
+                                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
+                            </abbr>
+                                </a>
+                            /
+                            <abbr title="Відмінити" name="delete_no">
+                                <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
+                            </abbr>
+                        </span>
         </form>
         </td>
-        <!-- /блок видалення юзера -->
 
     </tr>
 

@@ -40,6 +40,31 @@
 
     <table class="post_head" id="{{ note.id }}">
         <li>
+             <!-- видно всім -->
+            <tr>
+                <td class="left">
+                    <small>
+                    <div class="id_note">
+                        ІД: {{note.id}}
+                    </div>
+                    </small>
+                </td>
+
+            <td class="right">
+                <small>
+                {% if note.global_visible and
+                    blog_form_visible and
+                    (note.user_name == session.user_name or
+                    session.logged_admin) %}
+                        <div class="visible">видно всім</div>
+                {% else %}
+                        <div class="visible" style="display: none;">видно всім</div>
+                {% endif %}
+                </small>
+            </td>
+            </tr>
+
+            <!-- автор запису -->
             <td class="left">
                 <h2 class="post">
                     {{ note.user_name }}
@@ -52,20 +77,11 @@
 
             <td class="right">
                 <small>
-                        {% if note.global_visible and
-                              blog_form_visible and
-                              (note.user_name == session.user_name or
-                              session.logged_admin) %}
-                        <div class="visible">видно всім</div>
-                        {% else %}
-                        <div class="visible" style="display: none;">видно всім</div>
-                        {% endif %}
-
                         {{ note.timestamp }}
 
                         {% if session.logged_admin or session.user_name == note.user_name %}
                         <!-- кнопка видалення -->
-                        <a name="delete_note" id="{{note.id}}"><u> стерти </u></a>
+                        <a name="delete_everything" id="{{note.id}}"><u> стерти </u></a>
                         <span id="{{note.id}}" name='delete_hide_form' style="display:none;">
                             <abbr title="Видалити" name='delete_yes'>
                                 <img src="{{ url_for('static', filename='img/trash.png') }}"/>

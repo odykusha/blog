@@ -1,6 +1,6 @@
  var main = function(){
  // ------------------------------------------------------------------- //
- // вікно із списком коритсувачів
+ // вікно із списком користувачів
     $("#user_list_button").click(function(){
         $("#user_list").toggle("Puff");
     });
@@ -8,7 +8,7 @@
  // ------------------------------------------------------------------- //
  // вікно із списком коритсувачів
     // відобразити кнопку видалення
-    $('a[name="delete_note"]').click(function(){
+    $('a[name="delete_everything"]').click(function(){
         $(this).next('span').show();
     });
 
@@ -245,21 +245,15 @@
                         '<div class="visible" style="display: none;">видно всім</div>'+
                         data.timestamp +
 /*
-                        '<a href="/del/'+ data.note_id +'"'+
-                           'onclick="document.getElementsByName(\'delete_'+ data.note_id +'\')[0].style.display=\'inline\'; return false;">'+
-                            'стерти </a>'+
-                        '<span id="'+ data.note_id + '" name="delete_'+ data.note_id +'" style="display:none;">'+
-                        '<a href="#" name="delete_note" onclick="document.FormToSend_0.submit();">'+
-                            '<abbr title="Видалити">'+
+                        '<a name="delete_everything" id="'+ data.note_id +'"><u> стерти </u></a>'+
+                        '<span id="'+ data.note_id +'" name="delete_hide_form" style="display:none;">'+
+                            '<abbr title="Видалити" name="delete_yes">'+
                                 '<img src="/static/img/trash.png"/>'+
                             '</abbr>'+
-                        '</a>'+
                             '/'+
-                        '<a href="#" onclick="document.getElementsByName(\'delete_'+ data.note_id +'\')[0].style.display=\'none\'; return false;">'+
-                            '<abbr title="Відмінити">'+
+                            '<abbr title="Відмінити" name="delete_no">'+
                                 '<img src="/static/img/cancel.png"/>'+
                             '</abbr>'+
-                        '</a>'+
                         '</span>'+
 */
                     '</form>'+
@@ -310,7 +304,6 @@
                 }
 
         });
-
     });
 
 
