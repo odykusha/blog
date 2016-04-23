@@ -23,8 +23,8 @@ DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
-HOST = '127.0.0.1'
-PORT = 8080
+HOST = '0.0.0.0'
+PORT = 80
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -241,48 +241,6 @@ def show_notes(user_name=None):
                            users=users)
 
 
-@app.route('/add/', methods=['POST'])
-@logging('logged_user')
-def add_note():
-    db = get_db()
-    form = BlogForm()
-    if form.submit() and len(form.blog_text.data) > 0:
-        db.execute(sql_scripts.add_note,
-                   [tools.filter(form.blog_text.data),
-                    session.get('user_id'),
-                    int(form.visible_post.data)])
-        db.commit()
-        flash('пост додано')
-    return redirect(url_for('show_notes', user_name=session.get('user_name')))
-
-
-@app.route('/del/<int:note_id>', methods=['POST'])
-@logging('logged_user')
-def del_note(note_id):
-    db = get_db()
-    # дістаємо логін користувача з ІД посту
-    cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
-    note = cur.fetchall()
-    # перевірка видалення не дійсного посту
-    if len(note) == 0:
-        flash('хуя тобі, вже нема такого поста')
-    # видаляти може лише автор, або адмін
-    elif note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
-        db.execute(sql_scripts.del_note, [note_id])
-        db.commit()
-        flash('пост видалено')
-    # перевірка видалення чужого поста
-    else:
-        flash('хитрожопий, ти не можеш видалити чужий пост')
-
-    if note[0]['user_name']:
-        # при видалені дійсного посту, перенаправити на блог автора цього посту
-        return redirect(url_for('show_notes', user_name=note[0]['user_name']))
-    else:
-        # якщо намагались видалити не дійсний пост
-        return redirect(url_for('show_notes', user_name=session.get('user_name')))
-
-
 @app.route('/users/view/', methods=['GET'])
 @logging('logged_admin')
 def show_users(form=None):
@@ -334,7 +292,7 @@ def del_users(us_id):
 ###############################################################################
 @app.errorhandler(403)
 def err403(error):
-    return "У вас немає прав для перегляду постів інших користувачів!<br> %s" % error, 403
+    return "У вас немає прав для перегляду записів інших користувачів!<br> %s" % error, 403
 
 
 @app.errorhandler(404)
@@ -351,16 +309,15 @@ def err405(error):
 # AJAX function
 ###############################################################################
 @app.route('/ajax_view_note', methods=['GET'])
-@logging('logged_user')
 def ajax_view_note():
     note_id = request.args.get('note_id', 0, type=int)
 
     db = get_db()
     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
     note = cur.fetchall()
-    # перевірка не дійсного посту
+    # перевірка не дійсного запису
     if len(note) == 0:
-        return jsonify(status='ERR', message='хуя тобі, вже нема такого поста')
+        return jsonify(status='ERR', message='хуя тобі, вже нема такого запису')
 
     for nt in note:
         if nt['user_id'] == session.get('user_id') or session.get('logged_admin'):
@@ -368,13 +325,12 @@ def ajax_view_note():
             visible = bool(nt['global_visible'])
             return jsonify(status='OK', note_text=text, visible_text=visible)
         else:
-            return jsonify(status='ERR', message='чужі пости підглядати не добре')
+            return jsonify(status='ERR', message='чужі записи підглядати не добре')
 
     return jsonify(status='ERR', message='невідома помилка')
 
 
 @app.route('/ajax_change_note', methods=['POST'])
-@logging('logged_user')
 def ajax_change_note():
     note_id      = request.form['submit_id']
     note_text    = request.form['note_text']
@@ -386,50 +342,48 @@ def ajax_change_note():
     db = get_db()
     form = BlogForm()
 
-    # змінювати пост може лише його автор
+    # змінювати запис може лише його автор
     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
     note = cur.fetchall()
     for nt in note:
         if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
             return jsonify(status='ERR', message='От скотиняка нагла')
-    # збереження зміненого поста
+    # збереження зміненого запису
     if form.submit_source() and len(note_text) > 0:
         db.execute(sql_scripts.change_note,
                    [note_text,
                     int(note_visible),
                     note_id])
         db.commit()
-        return jsonify(status='OK', message='пост ID:' + note_id + ', успішно змінено')
+        return jsonify(status='OK', message='запис ID:' + note_id + ', успішно змінено')
     # по невідомим причинам
     return jsonify(status='ERR', message='я хз чому так вийшло')
 
 
 @app.route('/ajax_delete_note', methods=['POST'])
-@logging('logged_user')
 def ajax_delete_note():
     note_id = request.form['submit_id']
     db = get_db()
 
-    # дістаємо логін користувача з ІД посту
+    # дістаємо логін користувача з ІД запису
     cur = db.execute(sql_scripts.get_note_by_node_id, [note_id])
     note = cur.fetchall()
-    # перевірка видалення не дійсного посту
+    # перевірка видалення не дійсного запису
     if len(note) == 0:
-        return jsonify(status='ERR', message='хуя тобі, вже нема такого поста')
+        return jsonify(status='ERR', message='хуя тобі, вже нема такого запису')
 
     # видаляти може лише автор, або адмін
     elif note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
         db.execute(sql_scripts.del_note, [note_id])
         db.commit()
-        return jsonify(status='OK', message='пост ID:' + note_id + ', успішно видалений')
+        return jsonify(status='OK', message='запис ID:' + note_id + ', успішно видалений')
 
-    # перевірка видалення чужого поста
+    # перевірка видалення чужого запису
     else:
-        return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий пост')
+        return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
 
 
 @app.route('/ajax_create_note', methods=['POST'])
-@logging('logged_user')
 def ajax_create_note():
     note_text    = request.form['note_text']
     note_visible = request.form['note_visible']
@@ -440,13 +394,17 @@ def ajax_create_note():
 
     db = get_db()
     form = BlogForm()
+    # перевірка на те, що користувач авторизувався
+    if not session.get('logged_user'):
+        return jsonify(status='ERR', message='спочатку необхідно авторизуватись')
+
     if form.submit() and len(note_text) > 0:
         db.execute(sql_scripts.add_note,
                    [tools.filter(note_text),
                     session.get('user_id'),
                     int(note_visible)])
         db.commit()
-    # take: note_id, user_name, timestamp
+        # take: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
                         [session.get('user_name')])
         note = cur.fetchall()
@@ -455,7 +413,7 @@ def ajax_create_note():
         timestamp = note[0]['timestamp']
         note_id   = note[0]['id']
 
-        return jsonify(status='OK', message='пост успішно додано',
+        return jsonify(status='OK', message='запис успішно додано',
             user_name=user_name,
             timestamp=timestamp,
             note_id=note_id)

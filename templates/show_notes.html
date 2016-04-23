@@ -52,9 +52,6 @@
 
             <td class="right">
                 <small>
-                    <form name="FormToSend_{{note.id}}" action="{{ url_for('del_note', note_id = note.id) }}"
-                          method="post">
-
                         {% if note.global_visible and
                               blog_form_visible and
                               (note.user_name == session.user_name or
@@ -68,27 +65,18 @@
 
                         {% if session.logged_admin or session.user_name == note.user_name %}
                         <!-- кнопка видалення -->
-                        <a href="{{ url_for('del_note', note_id = note.id) }}"
-                           onclick="document.getElementsByName('delete_{{note.id}}')[0].style.display='inline'; return false;">
-                            стерти </a>
-                        <span id="{{note.id}}" name='delete_{{note.id}}' style="display:none;">
-                        <a href="#" name='delete_note' onclick="document.FormToSend_{{0}}.submit();">
-                            <abbr title="Видалити">
-                                <!--<b class="green"> &#8730; </b>-->
+                        <a name="delete_note" id="{{note.id}}"><u> стерти </u></a>
+                        <span id="{{note.id}}" name='delete_hide_form' style="display:none;">
+                            <abbr title="Видалити" name='delete_yes'>
                                 <img src="{{ url_for('static', filename='img/trash.png') }}"/>
                             </abbr>
-                        </a>
                             /
-                        <a href="#" onclick="document.getElementsByName('delete_{{note.id}}')[0].style.display='none'; return false;">
-                            <abbr title="Відмінити">
-                                <!--<b class="red"> &times; </b>-->
+                            <abbr title="Відмінити" name="delete_no">
                                 <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
                             </abbr>
-                        </a>
                         </span>
-
                         {% endif %}
-                    </form>
+
                 </small>
             </td>
     </table>

@@ -5,6 +5,18 @@
         $("#user_list").toggle("Puff");
     });
 
+ // ------------------------------------------------------------------- //
+ // вікно із списком коритсувачів
+    // відобразити кнопку видалення
+    $('a[name="delete_note"]').click(function(){
+        $(this).next('span').show();
+    });
+
+    // сховати кнопку видалення
+    $('abbr[name="delete_no"]').click(function() {
+        $(this).parent().hide();
+    });
+
 // ------------------------------------------------------------------- //
 // ajax запит на відображення соуса записа
     $('img[name="edit_this_post"]').click(function(){   //.posts
@@ -14,6 +26,12 @@
         var flash = $('.flash').attr('style');
         if (flash == 'display: block;') {
             $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
 
         // вихід при згортанні форми редагування, щоб не відправляти дубляж ajax запиту
         var res = $('.posts').find('div[id="' + note_id + '"]').attr('style');
@@ -69,6 +87,18 @@
         else
             {note_visible = 'False'}
 
+        // приховуємо дефолтне flash вікно
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
+
+
         $.ajax({
             url: '/ajax_change_note',
             // timeout: 10,
@@ -80,7 +110,6 @@
             type: 'POST',
             success: function(data) {
                 if (data.status == 'OK') {
-
                     // водночас відобраежуємо виконані зміни
                     $("table[id=" + submit_id + "]").find("pre").text(note_text)
                     if (note_visible == 'True')
@@ -115,13 +144,20 @@
 
 // ------------------------------------------------------------------- //
 // ajax видалення запису
-    $("a[name='delete_note']").click(function() {
+    $("abbr[name='delete_yes']").click(function() {
         var submit_id = $(this).parent().attr("id");
 
         // приховуємо дефолтне flash вікно
         var flash = $('.flash').attr('style');
         if (flash == 'display: block;') {
             $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
+
 
         $.ajax({
             url: '/ajax_delete_note',
@@ -168,12 +204,17 @@
             {note_visible = 'True'}
         else
             {note_visible = 'False'}
-        console.log('|AJAX|create|DEBUG|', note_text, note_visible);
 
         // приховуємо дефолтне flash вікно
         var flash = $('.flash').attr('style');
         if (flash == 'display: block;') {
             $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
 
         $.ajax({
             url: '/ajax_create_note',
@@ -278,8 +319,3 @@
 
 // ------------------------------------------------------------------- //
 $(document).ready(main);
-
-
-
-
-

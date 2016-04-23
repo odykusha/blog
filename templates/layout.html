@@ -49,15 +49,13 @@
 
 <!-- пости -->
 <div class=page>
-    <!-- message from ajax function -->
-    <div class='message_ok'></div>
-    <div class='message_error'></div>
-
-    <!-- default flash message -->
-    {% for message in get_flashed_messages() %}
-    <div class=flash style="display: block;">{{ message }}</div>
-    {% endfor %}
-
     {% block body %} {% endblock %}
 </div>
 
+<!-- default flash message -->
+{% for message in get_flashed_messages() %}
+    <div class=flash style="display: block;">{{ message }}</div>
+{% endfor %}
+<!-- інформаційне вікно -->
+<div class='message_ok'></div>
+<div class='message_error'></div>

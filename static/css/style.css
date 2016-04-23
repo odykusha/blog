@@ -18,9 +18,6 @@ li.entries      { margin: 0.8em 1.2em;}
 .add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
 .add-entry dl   { font-weight: bold; }
 .metanav        { text-align: right; font-size: 0.8em; padding: 0.5em;}
-.flash          { background: #cee5F5; padding: 0.5em; border: 1px solid #aacbe2; display: block; }
-.message_error  { background: #f0d6d6; padding: 0.5em; border: 1px solid #D69090; display: none; }
-.message_ok     { background: #D8F3DC; padding: 0.5em; border: 1px solid #AAE2B1; display: none; }
 .login          { text-align: center;}
 .posts          { border:1px solid; width:100%; solid grey; border-collapse:collapse; table-layout:fixed;  background:#fff; border: 1px solid #d8d8d8;}
 .post_head      { border:2px; width:100%; table-layout:fixed; padding: 10px 0px 0px; }
@@ -84,7 +81,41 @@ header {
 }
 
 
+.flash {
+    display: none;
+	background: #cee5F5;
+	padding: 0.5em;
+	border: 1px solid #aacbe2;
+	left: 1px;
+	width: 100%;
+    bottom: 0px;
+    text-align: center;
+    position: fixed;
+}
 
+.message_ok {
+    display: none;
+	background: #D8F3DC;
+	padding: 0.5em;
+	border: 1px solid #AAE2B1;
+	left: 1px;
+	width: 100%;
+    bottom: 0px;
+    text-align: center;
+    position: fixed;
+}
+
+.message_error {
+    display: none;
+	background: #f0d6d6;
+	padding: 0.5em;
+	border: 1px solid #D69090;
+	left: 1px;
+	width: 100%;
+    bottom: 0px;
+    text-align: center;
+    position: fixed;
+}
 
 
 /*
