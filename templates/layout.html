@@ -1,5 +1,10 @@
 <!doctype html>
-<title>Flaskr блог</title>
+<title>Flaskr, записи
+{% if view_user %}
+    {{view_user}}
+{% else %}
+   всіх
+{% endif %}</title>
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
@@ -14,13 +19,20 @@
 <ul class="head">
     <table class="head">
         <td>
-            <li><a href="#" id="user_list_button"> ||| </a></li>
-            <li><a href="{{ url_for('show_notes') }}"> Блог </a></li>
+            <li><a id="user_list_button"> ||| </a></li>
+            <li><a href="{{ url_for('show_notes') }}"> Загальний </a></li>
 
         {% if session.logged_user %}
-            <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мій блог </a></li>
+            <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мої записи </a></li>
             <li><div class="green_button"> ви зайшли як: {{ session.user_name }} </div></li>
+
+         {% if view_user %}
+            <li style="float:none"><a>Записи користувача <u>{{view_user}}</u> </a></li>
+         {% else %}
+            <li style="float:none"><a>Записи <u>всіх</u> користувачів</a></li>
+         {% endif %}
         </td>
+
 
             {% if session.logged_admin %}
             <td>

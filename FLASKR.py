@@ -23,7 +23,7 @@ DATABASE = os.path.join(BASE_DIR, 'flaskr.db')
 DEBUG = True
 SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 80
 
 app = Flask(__name__)

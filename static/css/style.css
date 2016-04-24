@@ -1,9 +1,9 @@
-body            { font-family: sans-serif; background: #eee; }
+body            { font-family: Helvetica; background: #eee; }
 
 h1.post         { border-bottom: 2px solid #444444; font-family: 'Georgia', serif; margin: 0; }
 h2.post         { font-size: 1em; color: #08409A; font-family: 'Georgia', serif; margin: 0;}
 text            { color: crimson; font-family: cursive; font-size: 12px;}
-small           { font-family: cursive; font-size: 11px;}
+small           { font-family: Modern; font-size: 11px;}
 pre             { white-space: pre-wrap; margin: 10px; }
 hr              { width:97%; }
 textarea        { max-width:99%; width:100%; }
