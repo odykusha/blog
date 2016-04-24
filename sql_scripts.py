@@ -24,6 +24,18 @@ get_user_notes = """
     order by id desc
     """
 
+get_notes_deleted_users = """
+    select nt.id as id,
+    nt.text as text,
+    datetime(nt.timestamp, 'unixepoch', 'localtime') as timestamp,
+    usr.user_name as user_name,
+    nt.global_visible as global_visible
+    from notes nt
+    LEFT OUTER JOIN users usr ON nt.user_id = usr.id
+    where usr.user_name is null
+    order by id desc;
+    """
+
 add_note = """
     insert into notes (text, user_id, global_visible)
     values (?, ?, ?)

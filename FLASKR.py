@@ -222,7 +222,10 @@ def logout():
 def show_notes(user_name=None):
     db = get_db()
     form = BlogForm()
-    if user_name:
+    if user_name == 'deleted_user':
+        cur = db.execute(sql_scripts.get_notes_deleted_users)
+        blog_form_visible = False
+    elif user_name:
         cur = db.execute(sql_scripts.get_user_notes, [user_name])
         blog_form_visible = True
     else:
@@ -328,7 +331,10 @@ def ajax_create_note():
                    [tools.filter(note_text),
                     session.get('user_id'),
                     int(note_visible)])
-        db.commit()
+        try:
+            db.commit()
+        except sqlite3.OperationalError:
+            return jsonify(status='ERR', message='якесь гівно блочить базу')
         # take: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
                         [session.get('user_name')])
@@ -391,7 +397,10 @@ def ajax_change_note():
                    [note_text,
                     int(note_visible),
                     note_id])
-        db.commit()
+        try:
+            db.commit()
+        except sqlite3.OperationalError:
+            return jsonify(status='ERR', message='якесь гівно блочить базу')
         return jsonify(status='OK', message='запис ID:' + note_id + ', успішно змінено')
     # по невідомим причинам
     return jsonify(status='ERR', message='я хз чому так вийшло')
@@ -412,7 +421,10 @@ def ajax_delete_note():
     # видаляти може лише автор, або адмін
     elif note[0]['user_id'] == session.get('user_id') or session.get('logged_admin'):
         db.execute(sql_scripts.del_note, [note_id])
-        db.commit()
+        try:
+            db.commit()
+        except sqlite3.OperationalError:
+            return jsonify(status='ERR', message='якесь гівно блочить базу')
         return jsonify(status='OK', message='запис ID:' + note_id + ', успішно видалений')
 
     # перевірка видалення чужого запису

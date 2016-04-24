@@ -57,12 +57,20 @@
 <br><br>
 
 <!-- вікно з юзерами -->
-{% block users%} {% endblock %}
+<div id="user_list"> <!-- style="display:none" -->
+        Виберіть користувача:<br>
+    {% for user in users %}
+        <a href="{{ url_for('show_notes', user_name = user.user_name) }}"> {{ user.user_name }} </a> <br>
+    {% endfor %}
+        <a href="{{ url_for('show_notes', user_name = 'deleted_user') }}"> <u> Видаленні </u></a><br>
+</div>
+
 
 <!-- пости -->
 <div class=page>
     {% block body %} {% endblock %}
 </div>
+
 
 <!-- default flash message -->
 {% for message in get_flashed_messages() %}
