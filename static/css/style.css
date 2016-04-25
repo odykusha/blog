@@ -1,7 +1,7 @@
-body            { font-family: "Open Sans",sans-serif; background: #eee; }
+body            { font-family: "Open Sans",sans-serif; background: #eee;  }
 
 h1.post         { border-bottom: 2px solid #444444; font-family: Tahoma,Arial sans-serif; margin: 0; }
-h2.post         { font-size: 1em; color: #08409A; font-family: Tahoma,Arial sans-serif; margin: 0;}
+h2.post         { font-size: 1em; color: #08409A; font-family: Tahoma,Arial sans-serif; margin: 0; }
 text            { color: crimson; font-family: Tahoma,Arial sans-serif; font-size: 12px;}
 small           { font-family: 'Open Sans',Sans-serif; font-size: 11px;}
 pre             { white-space: pre-wrap; margin: 10px; }
@@ -28,6 +28,9 @@ li.entries      { margin: 0.8em 1.2em;}
 .visible        { color: #9743FF; }
 .id_note        { color: rgba(0,0,0,0.4); }
 .hidden_post    { display: none; background-color: #BDBDBD; }
+
+.not_like_link_id       {text-decoration: none; color: rgba(0,0,0,0.4);}
+.not_like_link_user     {text-decoration: none; color: hsla(242, 88%, 54%, 0.81); }
 
 
 ul.head { list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333; }
