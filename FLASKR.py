@@ -218,21 +218,31 @@ def logout():
 
 
 @app.route('/', methods=['GET'])
+@app.route('/view/<note_id>', methods=["GET"])
 @app.route('/users/<user_name>', methods=['GET'])
-def show_notes(user_name=None):
+def show_notes(user_name=None, note_id=None):
     db = get_db()
     form = BlogForm()
+
     if user_name == 'deleted_user':
-        cur = db.execute(sql_scripts.get_notes_deleted_users)
+        notes = db.execute(sql_scripts.get_notes_deleted_users).fetchall()
         blog_form_visible = True
     elif user_name:
-        cur = db.execute(sql_scripts.get_user_notes, [user_name])
+        notes = db.execute(sql_scripts.get_user_notes, [user_name]).fetchall()
         blog_form_visible = True
     else:
-        cur = db.execute(sql_scripts.get_all_notes, [session.get('user_id')])
+        notes = db.execute(sql_scripts.get_all_notes, [session.get('user_id')]).fetchall()
         blog_form_visible = False
-    # note list
-    notes = cur.fetchall()
+
+    if note_id:
+        print('||DEBUG|', note_id)
+        notes = db.execute(sql_scripts.get_note_by_node_id, [note_id]).fetchall()
+        print("||user_id|", session.get('user_id'), notes[0]['user_id'])
+        if session.get('user_id') == notes[0]['user_id']:
+            blog_form_visible = True
+        else:
+            blog_form_visible = False
+
     # user list
     cur = db.execute(sql_scripts.get_all_users)
     users = cur.fetchall()

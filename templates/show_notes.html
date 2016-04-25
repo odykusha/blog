@@ -36,7 +36,7 @@
                 <td class="left">
                     <small>
                     <div class="id_note">
-                        ІД: {{note.id}}
+                        <a href="{{ url_for('show_notes', note_id=note.id) }}"> ІД: {{note.id}} </a>
                     </div>
                     </small>
                 </td>
@@ -59,7 +59,7 @@
             <!-- автор запису -->
             <td class="left">
                 <h2 class="post">
-                    {{ note.user_name }}
+                    <a href="{{ url_for('show_notes', user_name=note.user_name) }}"> {{ note.user_name }} </a>
                     {% if session.logged_admin or session.user_name == note.user_name %}
                     <!-- соус поста -->
                     <img src="{{ url_for('static', filename='img/edit.png')}}" name="edit_this_post" id="{{ note.id }}" />
