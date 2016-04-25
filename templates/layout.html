@@ -3,8 +3,9 @@
 {% if view_user %}
     {{view_user}}
 {% else %}
-   всіх
-{% endif %}</title>
+    всіх
+{% endif %}
+</title>
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
@@ -25,29 +26,31 @@
         {% if session.logged_user %}
             <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мої записи </a></li>
             <li><div class="green_button"> ви зайшли як: {{ session.user_name }} </div></li>
+        {% endif %}
 
-         {% if view_user %}
+        {% if view_user %}
             <li style="float:none"><a>Записи користувача <u>{{view_user}}</u> </a></li>
-         {% else %}
+        {% else %}
             <li style="float:none"><a>Записи <u>всіх</u> користувачів</a></li>
-         {% endif %}
+        {% endif %}
         </td>
 
-
-            {% if session.logged_admin %}
+        {% if session.logged_admin %}
             <td>
                 <li style="float:right"><a class="green_button" href="{{ url_for('show_users') }}"> юзери </a></li>
             </td>
-            {% endif %}
+        {% endif %}
 
-        <td class="head">
-            <li style="float:right"><a class="green_button" href="{{ url_for('logout') }} "> вийти </a></li>
-        </td>
+        {% if session.logged_user or session.logged_admin %}
+            <td class="head">
+                <li style="float:right"><a class="green_button" href="{{ url_for('logout') }} "> вийти </a></li>
+            </td>
+        {% endif %}
 
-        {% else %}
-        <td>
-            <li style="float:right"><a class="green_button" href="{{ url_for('login') }} "> зайти </a></li>
-        </td>
+        {% if not session.logged_user and not session.logged_admin %}
+            <td>
+                <li style="float:right"><a class="green_button" href="{{ url_for('login') }} "> зайти </a></li>
+            </td>
         {% endif %}
 
     </table>

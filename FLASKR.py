@@ -24,7 +24,7 @@ DEBUG = True
 SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
 HOST = '0.0.0.0'
-PORT = 80
+PORT = 8080
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -224,7 +224,7 @@ def show_notes(user_name=None):
     form = BlogForm()
     if user_name == 'deleted_user':
         cur = db.execute(sql_scripts.get_notes_deleted_users)
-        blog_form_visible = False
+        blog_form_visible = True
     elif user_name:
         cur = db.execute(sql_scripts.get_user_notes, [user_name])
         blog_form_visible = True
@@ -430,9 +430,6 @@ def ajax_delete_note():
     # перевірка видалення чужого запису
     else:
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
-
-
-#  sqlite3.OperationalError: database is locked
 
 
 ###############################################################################
