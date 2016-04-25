@@ -1,6 +1,7 @@
 import requests
 import sys
 
+STOP_WORDS = ['script', 'console']
 
 def get_value(word, left_symb, right_symb):
     return word[word.find(left_symb) + len(left_symb):
@@ -42,12 +43,16 @@ def get_tag(some_link):
     try:
         response = requests.get(some_link)
     except requests.exceptions.ProxyError:
-        print('||*|| except', sys.exc_info()[0])
+        #print('||*|| except', sys.exc_info()[0])
         return get_a_tag(some_link)
     except:
-        print('||**|| except', sys.exc_info()[0])
-        if 'http' in some_link:
+        #print('||**|| except', sys.exc_info()[0])
+        if 'http' in some_link[0:4]:
             return get_a_tag(some_link)
+        # xss atack
+        for stop_word in STOP_WORDS:
+            if stop_word in some_link:
+                return some_link.replace(stop_word, '<img src="/static/img/noway.png" height="15px" width="15px" title="'+ stop_word +'"/>')
         return some_link
 
     CONTENT_TYPE = response.headers['content-type']
@@ -65,7 +70,6 @@ def get_tag(some_link):
 
         # якщо всі інші сайти
         elif 'support@pythonanywhere.com' in title:
-            #print("|| support@:", response.url)
             if some_link[-4::] in ['.gif', '.png', '.jpg', '.bmp', '.ico', 'jpeg', 'tiff']:
                 res = get_img_tag(some_link)
             else:
@@ -77,17 +81,15 @@ def get_tag(some_link):
 
     # якщо ссилка на інший формат: js, css та інше
     elif 'text' in CONTENT_TYPE:
-        #print("|| text:", response.url)
         return get_a_tag(response.url)
 
     # для картинок
     elif 'image' in CONTENT_TYPE:
-        #print("|| image:", response.url)
         return get_img_tag(response.url)
 
     # якщо нідочого не відповідає
     else:
-        #print("|| else:", response.url)
+        # print('##', response.url)
         return response.url
 
 
@@ -96,3 +98,9 @@ def filter(text):
     for i in new_text:
         text = text.replace(i, get_tag(i))
     return text
+
+
+# if __name__ == '__main__':
+#     text = 'фільтрувати текст "console", на смайлик(<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/The_gesture.svg/300px-The_gesture.svg.png" height="15px" width="15px"/>) === https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/The_gesture.svg/300px-The_gesture.svg.png'
+#     print('|ORIGINAL|', text)
+#     print('|CHANGING|', filter(text))
