@@ -52,8 +52,7 @@ def get_tag(some_link):
         # xss atack
         for stop_word in STOP_WORDS:
             if stop_word in some_link:
-                some_link = some_link.replace(stop_word, ' <img src="/static/img/noway.png" height="15px" width="15px" title="'+ stop_word +'"/> ')
-            return some_link
+                some_link = some_link.replace(stop_word, '<img src="/static/img/noway.png" height="15px" width="15px" title="# '+ stop_word +'"/>')
         return some_link
 
     CONTENT_TYPE = response.headers['content-type']
@@ -101,7 +100,12 @@ def filter(text):
     return text
 
 
-# if __name__ == '__main__':
-#     text = 'фільтрувати текст "console", на смайлик(<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/The_gesture.svg/300px-The_gesture.svg.png" height="15px" width="15px"/>) === https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/The_gesture.svg/300px-The_gesture.svg.png'
-#     print('|ORIGINAL|', text)
-#     print('|CHANGING|', filter(text))
+if __name__ == '__main__':
+    text = """фільтрувати текст
+            "console",
+            "script",
+            "console"
+            "script"
+            """
+    print('|ORIGINAL|', text)
+    print('|CHANGING|', filter(text))
