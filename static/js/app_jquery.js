@@ -8,18 +8,21 @@
  // ------------------------------------------------------------------- //
  // видалення запису
     // відобразити кнопку видалення
-    $('a[name="delete_everything"]').click(function(){
+    $('.entries').on("click", 'a[name="delete_everything"]', function(){
+//    $('a[name="delete_everything"]').click(function(){
         $(this).next('span').show();
     });
 
     // сховати кнопку видалення
-    $('abbr[name="delete_no"]').click(function() {
+    $('.entries').on("click", 'abbr[name="delete_no"]', function() {
+//    $('abbr[name="delete_no"]').click(function() {
         $(this).parent().hide();
     });
 
 // ------------------------------------------------------------------- //
 // ajax запит на відображення соуса записа
-    $('img[name="edit_this_post"]').click(function(){   //.posts
+    $('.entries').on("click", 'img[name="edit_this_post"]', function(){   //.posts
+        console.log( $( this ).attr("id") );
         var note_id = $(this).attr("id");
 
         // приховуємо дефолтне flash вікно
@@ -78,7 +81,7 @@
 
 // ------------------------------------------------------------------- //
 // ajax запит на зміну запису
-    $('input[name="submit_source"]').click(function() {
+    $('.entries').on("click", 'input[name="submit_source"]', function() {
         var submit_id = $(this).parent().attr("id");
         var note_text = $("div[id=" + submit_id + "]").find("#blog_text_source").val();
         var note_visible = $("div[id=" + submit_id + "]").find("#visible_post_source:checked").val();
@@ -144,7 +147,9 @@
 
 // ------------------------------------------------------------------- //
 // ajax видалення запису
-    $("abbr[name='delete_yes']").click(function() {
+//  $('.entries').on("click", 'img[name="edit_this_post"]', function(){   //.posts
+    $('.entries').on("click", 'abbr[name="delete_yes"]', function() {
+//    $("abbr[name='delete_yes']").click(function() {
         var submit_id = $(this).parent().attr("id");
 
         // приховуємо дефолтне flash вікно
@@ -230,21 +235,38 @@
                     // запихаємо його в початок
 
                     $('.entries').prepend(
-'<table class="post_head" id="' + data.note_id + '">'+
+    '<!-- тіло комента -->'+
+    '<table class="post_head" id="'+ data.note_id +'">'+
         '<li>'+
-            '<td class="left">'+
-                '<h2 class="post">'+
-                    data.user_name +
-                    //'<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" />'+
-                '</h2>'+
-            '</td>'+
+
+           '<!-- видно всім -->'+
+            '<tr>'+
+                '<td class="left">'+
+                    '<small>'+
+                    '<div>'+
+                        '<a class="not_like_link_id" href="/view/'+ data.note_id +'"> ІД: '+ data.note_id +'</a>'+
+                    '</div>'+
+                    '</small>'+
+                '</td>'+
             '<td class="right">'+
                 '<small>'+
-                    '<form name="FormToSend_'+ data.note_id + '" action="/del/'+ data.note_id +'"'+
-                          'method="post">'+
                         '<div class="visible" style="display: none;">видно всім</div>'+
+            '</small>'+
+        '</td>'+
+    '</tr>'+
+
+'<!-- автор запису -->'+
+            '<td class="left">'+
+                '<h2 class="post">'+
+                    '<a class="not_like_link_user" href="/users/admin">'+ data.user_name +'</a>'+
+                    '<!-- соус поста -->'+
+                    '<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" />'+
+                '</h2>'+
+            '</td>'+
+
+            '<td class="right">'+
+                '<small>'+
                         data.timestamp +
-/*
                         '<a name="delete_everything" id="'+ data.note_id +'"><u> стерти </u></a>'+
                         '<span id="'+ data.note_id +'" name="delete_hide_form" style="display:none;">'+
                             '<abbr title="Видалити" name="delete_yes">'+
@@ -255,11 +277,12 @@
                                 '<img src="/static/img/cancel.png"/>'+
                             '</abbr>'+
                         '</span>'+
-*/
-                    '</form>'+
+
                 '</small>'+
             '</td>'+
     '</table>'+
+
+    '<!-- тіло комента -->'+
     '<table class="posts" id="'+ data.note_id +'">'+
         '<td>'+
             '<pre>'+ note_text +'</pre>'+
