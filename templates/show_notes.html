@@ -62,7 +62,7 @@
                     <a class="not_like_link_user" href="{{ url_for('show_notes', user_name=note.user_name) }}"> {{ note.user_name }} </a>
                     {% if session.logged_admin or session.user_name == note.user_name %}
                     <!-- соус поста -->
-                    <img src="{{ url_for('static', filename='img/edit.png')}}" name="edit_this_post" id="{{ note.id }}" />
+                    <img src="{{ url_for('static', filename='img/edit.png')}}" name="edit_this_post" id="{{ note.id }}" title="Редагувати"/>
                     {% endif %}
                 </h2>
             </td>
@@ -73,13 +73,13 @@
 
                         {% if session.logged_admin or session.user_name == note.user_name %}
                         <!-- кнопка видалення -->
-                        <a name="delete_everything" id="{{note.id}}"><u> стерти </u></a>
+                            <img src="{{ url_for('static', filename='img/trash.png')}}" name="delete_everything" id="{{ note.id }}" title="Видалити" />
                         <span id="{{note.id}}" name='delete_hide_form' style="display:none;">
-                            <abbr title="Видалити" name='delete_yes'>
-                                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
+                            <abbr title="Видаляй" name='delete_yes'>
+                                <img src="{{ url_for('static', filename='img/accept.png') }}"/>
                             </abbr>
                             /
-                            <abbr title="Відмінити" name="delete_no">
+                            <abbr title="Я передумав" name="delete_no">
                                 <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
                             </abbr>
                         </span>

@@ -329,9 +329,9 @@ def ajax_create_note():
         note_visible = True
     else:
         note_visible = False
-
     db = get_db()
     form = BlogForm()
+
     # перевірка на те, що користувач авторизувався
     if not session.get('logged_user'):
         return jsonify(status='ERR', message='спочатку необхідно авторизуватись')
@@ -354,7 +354,7 @@ def ajax_create_note():
         timestamp = note[0]['timestamp']
         note_id   = note[0]['id']
 
-        return jsonify(status='OK', message='запис успішно додано',
+        return jsonify(status='OK', message='Додано запис, ІД:' + str(note_id),
             user_name=user_name,
             timestamp=timestamp,
             note_id=note_id)
@@ -388,6 +388,7 @@ def ajax_change_note():
     note_id      = request.form['submit_id']
     note_text    = request.form['note_text']
     note_visible = request.form['note_visible']
+    print(request.form['note_visible'])
     if note_visible == 'True':
         note_visible = True
     else:
@@ -400,7 +401,7 @@ def ajax_change_note():
     note = cur.fetchall()
     for nt in note:
         if nt['user_id'] != session.get('user_id') and session.get('logged_admin') == None:
-            return jsonify(status='ERR', message='От скотиняка нагла')
+            return jsonify(status='ERR', message='От скотиняка нагла, не твій це запис')
     # збереження зміненого запису
     if form.submit_source() and len(note_text) > 0:
         db.execute(sql_scripts.change_note,
@@ -411,7 +412,7 @@ def ajax_change_note():
             db.commit()
         except sqlite3.OperationalError:
             return jsonify(status='ERR', message='якесь гівно блочить базу')
-        return jsonify(status='OK', message='запис ID:' + note_id + ', успішно змінено')
+        return jsonify(status='OK', message='Змінено запис, ІД:' + note_id)
     # по невідомим причинам
     return jsonify(status='ERR', message='я хз чому так вийшло')
 
@@ -435,7 +436,7 @@ def ajax_delete_note():
             db.commit()
         except sqlite3.OperationalError:
             return jsonify(status='ERR', message='якесь гівно блочить базу')
-        return jsonify(status='OK', message='запис ID:' + note_id + ', успішно видалений')
+        return jsonify(status='OK', message='Видалено запис, ІД:' + note_id)
 
     # перевірка видалення чужого запису
     else:

@@ -8,14 +8,14 @@
  // ------------------------------------------------------------------- //
  // видалення запису
     // відобразити кнопку видалення
-    $('.entries').on("click", 'a[name="delete_everything"]', function(){
-//    $('a[name="delete_everything"]').click(function(){
+    $('.entries').on("click", 'img[name="delete_everything"]', function(){
+        $(this).hide();
         $(this).next('span').show();
     });
 
     // сховати кнопку видалення
     $('.entries').on("click", 'abbr[name="delete_no"]', function() {
-//    $('abbr[name="delete_no"]').click(function() {
+        $(this).parent().parent().find('img[name="delete_everything"]').show();
         $(this).parent().hide();
     });
 
@@ -59,7 +59,7 @@
                 $('.posts').find('div[id="' + note_id + '"]').toggle('blind');
                 $("div[id=" + note_id + "]").find("#blog_text_source").text(data.note_text);
                 $("div[id=" + note_id + "]").find("#visible_post_source").attr('checked', data.visible_text);
-                console.log("|AJAX|view|OK|сформовано запит, ID:", note_id);
+                console.log("|AJAX|view|OK|запит на запис, ID:", note_id);
                 }
 
             if (data.status == 'ERR') {
@@ -147,9 +147,7 @@
 
 // ------------------------------------------------------------------- //
 // ajax видалення запису
-//  $('.entries').on("click", 'img[name="edit_this_post"]', function(){   //.posts
     $('.entries').on("click", 'abbr[name="delete_yes"]', function() {
-//    $("abbr[name='delete_yes']").click(function() {
         var submit_id = $(this).parent().attr("id");
 
         // приховуємо дефолтне flash вікно
@@ -178,7 +176,7 @@
                     // показуємо повідомлення про успішність видалення запису
                     $('.message_ok').show('blind');
                     $('.message_ok').text(data.message);
-                    console.log('|AJAX|delete|OK|запис видалено, ID:', submit_id);
+                    console.log('|AJAX|delete|OK|видалено запис, ID:', submit_id);
                     }
 
                 if (data.status == 'ERR') {
@@ -194,9 +192,7 @@
                 $('.message_error').text('шось зовсім пішло не так :(((');
                 console.log("|AJAX|delete|ERROR|шось зовсім пішло не так :(((", errorThrown);
                 }
-
         });
-
     });
 
 
@@ -258,22 +254,22 @@
 '<!-- автор запису -->'+
             '<td class="left">'+
                 '<h2 class="post">'+
-                    '<a class="not_like_link_user" href="/users/admin">'+ data.user_name +'</a>'+
+                    '<a class="not_like_link_user" href="/users/admin"> '+ data.user_name +' </a>'+
                     '<!-- соус поста -->'+
-                    '<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" />'+
+                    '<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" title="Редагувати"/>'+
                 '</h2>'+
             '</td>'+
 
             '<td class="right">'+
                 '<small>'+
                         data.timestamp +
-                        '<a name="delete_everything" id="'+ data.note_id +'"><u> стерти </u></a>'+
+                        ' <img src="/static/img/trash.png" name="delete_everything" id='+ data.note_id +' title="Видалити" />'+
                         '<span id="'+ data.note_id +'" name="delete_hide_form" style="display:none;">'+
-                            '<abbr title="Видалити" name="delete_yes">'+
-                                '<img src="/static/img/trash.png"/>'+
+                            '<abbr title="Видаляй" name="delete_yes">'+
+                                '<img src="/static/img/accept.png"/>'+
                             '</abbr>'+
-                            '/'+
-                            '<abbr title="Відмінити" name="delete_no">'+
+                            ' / '+
+                            '<abbr title="Я передумав" name="delete_no">'+
                                 '<img src="/static/img/cancel.png"/>'+
                             '</abbr>'+
                         '</span>'+
@@ -309,7 +305,7 @@
                     // показуємо повідомлення про успішність видалення запису
                     $('.message_ok').show('blind');
                     $('.message_ok').text(data.message);
-                    console.log('|AJAX|create|OK|запис створено');
+                    console.log('|AJAX|create|OK|створено запис, ID:', data.note_id);
                     }
 
                 if (data.status == 'ERR') {
@@ -325,10 +321,8 @@
                 $('.message_error').text('шось зовсім пішло не так :(((');
                 console.log("|AJAX|create|ERROR|шось зовсім пішло не так :(((", errorThrown);
                 }
-
         });
     });
-
 
 // ------------------------------------------------------------------- //
 }
