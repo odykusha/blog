@@ -15,6 +15,17 @@ create table users (
  status integer DEFAULT 1
 );
 
-insert into users (id, user_name, password) values (0, 'admin', 'passwd');
-insert into users (user_name, password) values ('oleg', 'qaz');
 
+drop table if exists users_new;
+create table users_new (
+ id integer primary key autoincrement,
+ client_id integer not null,
+ system text not null,
+ user_name text not null,
+ photo text not null,
+ status integer DEFAULT 1,
+ is_admin integer default 0
+);
+
+--insert into users (id, user_name, password) values (0, 'admin', 'passwd');
+--insert into users (user_name, password) values ('oleg', 'qaz');

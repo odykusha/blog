@@ -214,6 +214,8 @@ def logout():
     session.pop('logged_admin', None)
     session.pop('user_name', None)
     session.pop('user_id', None)
+    # session.pop('photo', None)
+    # session.pop('token', None)
     return redirect(url_for('show_notes'))
 
 
@@ -345,6 +347,7 @@ def ajax_create_note():
             db.commit()
         except sqlite3.OperationalError:
             return jsonify(status='ERR', message='якесь гівно блочить базу')
+        print('note ADD', note_text, session.get('user_id'), int(note_visible))
         # take: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
                         [session.get('user_name')])
@@ -388,7 +391,6 @@ def ajax_change_note():
     note_id      = request.form['submit_id']
     note_text    = request.form['note_text']
     note_visible = request.form['note_visible']
-    print(request.form['note_visible'])
     if note_visible == 'True':
         note_visible = True
     else:
@@ -442,6 +444,117 @@ def ajax_delete_note():
     else:
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
 
+
+###############################################################################
+# auth API Vk
+###############################################################################
+import requests, json
+
+CLIENT_ID = 5435272
+CLIENT_SECRET = '5aYHQwz5S4BofTTA36g3'
+# get uri link where running app
+REDIRECT_URI = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
+
+
+@app.route('/auth_vk', methods=['GET'])
+def auth_vk():
+    # on local
+    visual_res = {"access_token":"ad953d58c340cbf0d1c5d15fa371032e0bb164a7166997d548262da6a12683d9ecc3a55aaa6313b0a1c0a","expires_in":86400,"user_id":137375300}
+    #registration(visual_res)
+    return registration(visual_res)
+    # on real
+    get_user_code = requests.get(url='https://oauth.vk.com/authorize',
+                                 params={'client_id': CLIENT_ID,
+                                         'display':'page',
+                                         'redirect_uri': REDIRECT_URI,
+                                         'scope':'status',
+                                         'response_type':'code',
+                                         'v': '5.50'})
+    request_status = get_user_code.status_code
+    if request_status == 200:
+        return redirect(get_user_code.url)
+    else:
+        return get_user_code.content, request_status
+
+
+@app.route('/get_access_token_vk', methods=['GET'])
+def get_access_token_vk():
+    code = request.args.get('code')
+    get_access_token = requests.get(url='https://oauth.vk.com/access_token',
+                                    params={'client_id': CLIENT_ID,
+                                            'client_secret': CLIENT_SECRET,
+                                            'redirect_uri': REDIRECT_URI,
+                                            'code': code})
+    request_status = get_access_token.status_code
+    if request_status != 200:
+        return get_access_token.content, request_status
+
+    access_dict = json.loads(get_access_token.text)
+    print("|| access_dict ||", access_dict)
+    registration(access_dict)
+
+
+
+def registration(access_dict):
+    get_client_info = requests.get(url='https://api.vk.com/method/users.get',
+                                   params={'user_id': access_dict['user_id'],
+                                           'v': '5.50',
+                                           'fields': 'first_name,last_name,photo',
+                                           'access_token': access_dict['access_token']})
+    request_status = get_client_info.status_code
+    if request_status != 200:
+        return get_client_info.content, request_status
+
+    client_dict = json.loads(get_client_info.text)
+
+    if 'error' in client_dict:
+        return client_dict, 401
+
+
+
+    client_dict = client_dict.get('response')[0]
+    session['logged_user'] = True
+    session['user_name'] = client_dict.get('first_name') + ' ' + \
+                           client_dict.get('last_name')
+    session['user_id'] = client_dict.get('id')
+    user_photo = client_dict.get('photo')
+    print('SESSION', session['logged_user'], session['user_name'], session['user_id'], user_photo)
+
+    db = get_db()
+    db.execute(sql_scripts.update_insert_user,
+                    [session['user_id'],
+                     session['user_id'],
+                     'vk_com',
+                     session['user_name'],
+                     user_photo,
+                     session['user_id'],
+                     session['user_id']])
+    db.commit()
+
+
+    # add admin role
+    cur = db.execute(sql_scripts.get_user_head,
+                     [session['user_id']]).fetchall()
+    for cr in cur:
+        if cr['is_admin']:
+            session['logged_admin'] = True
+        user_status = cr['status']
+
+
+    return redirect(url_for('show_notes', user_name=session.get('user_name')))
+
+
+
+
+
+
+@app.route('/login_new/', methods=['GET'])
+def login_new():
+    if session.get('logged_user'):
+        return redirect(url_for('show_notes'))
+
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 ###############################################################################
 if __name__ == '__main__':

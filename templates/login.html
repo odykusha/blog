@@ -1,7 +1,7 @@
 <!doctype html>
 <title>Flaskr блог</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }} ">
-
+<!--<script src="//vk.com/js/api/xd_connection.js?2"  type="text/javascript"></script>-->
 
  {% if error %} <p class=error><strong>Error:</strong> {{ error }}
  {% endif %}
@@ -23,9 +23,16 @@
          <text> {{ message }} </text>
     {% endfor %} <br />
 
+
 <div class="submit-container">
     {{ form.submit(class="submit-button") }}
-
-
 </div>
+
+
+<div class="left">
+    <a href="{{ url_for('auth_vk') }}">
+      <img src="{{ url_for('static', filename='img/vk.png') }}" />
+    </a>
+</div>
+
 </form>

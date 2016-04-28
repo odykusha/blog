@@ -32,6 +32,8 @@ li.entries      { margin: 0.8em 1.2em;}
 .not_like_link_id       {text-decoration: none; color: rgba(0,0,0,0.4);}
 .not_like_link_user     {text-decoration: none; color: hsla(242, 88%, 54%, 0.81); }
 
+.vk_image       { width: 28px; height: 28px; border-radius: 50%; border: 0; }
+
 
 ul.head { list-style-type: none; margin: 0; padding: 0; overflow: hidden; background-color: #333; }
 li { float: left; }
