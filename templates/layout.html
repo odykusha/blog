@@ -25,11 +25,11 @@
 
         {% if session.logged_user %}
             <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мої записи </a></li>
-            <li><div class="green_button"> ви зайшли як: {{ session.user_name }} </div></li>
+            <li><div class="green_button" style="padding: 6px 16px"> ви зайшли як: {{ session.user_name }} <img src="{{session.get('photo')}}" class="vk_image"/> </div></li>
         {% endif %}
 
         {% if view_user %}
-            <li style="float:none"><a>Записи користувача <u>{{view_user}}</u> </a></li>
+            <li style="float:none"><a style="padding: 6px">Записи користувача <u>{{view_user}}</u> <!--<img src="{{session.get('photo')}}" class="vk_image"/>--> </a> </li>
         {% else %}
             <li style="float:none"><a>Записи <u>всіх</u> користувачів</a></li>
         {% endif %}

@@ -459,7 +459,7 @@ REDIRECT_URI = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
 @app.route('/auth_vk', methods=['GET'])
 def auth_vk():
     # on local
-    visual_res = {"access_token":"ad953d58c340cbf0d1c5d15fa371032e0bb164a7166997d548262da6a12683d9ecc3a55aaa6313b0a1c0a","expires_in":86400,"user_id":137375300}
+    visual_res = {"access_token":"a1ab189b539da01920342158ca5464cd5555bcec98314de16eb6251c26c2b99b5ba163b667dd3393cef42","expires_in":86399,"user_id":137375300}
     #registration(visual_res)
     return registration(visual_res)
     # on real
@@ -517,8 +517,8 @@ def registration(access_dict):
     session['user_name'] = client_dict.get('first_name') + ' ' + \
                            client_dict.get('last_name')
     session['user_id'] = client_dict.get('id')
-    user_photo = client_dict.get('photo')
-    print('SESSION', session['logged_user'], session['user_name'], session['user_id'], user_photo)
+    session['photo'] = client_dict.get('photo')
+    print('SESSION', session['logged_user'], session['user_name'], session['user_id'], session['photo'])
 
     db = get_db()
     db.execute(sql_scripts.update_insert_user,
@@ -526,7 +526,7 @@ def registration(access_dict):
                      session['user_id'],
                      'vk_com',
                      session['user_name'],
-                     user_photo,
+                     session['photo'],
                      session['user_id'],
                      session['user_id']])
     db.commit()
