@@ -6,8 +6,3 @@ from time import sleep
 # init_db()
 # print('DB create')
 # sleep(1)
-
-print('notes')
-show_db('notes')
-print('users')
-show_db('users')

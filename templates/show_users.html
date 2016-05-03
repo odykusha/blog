@@ -3,61 +3,47 @@
 
 <h2>Управління користувачами</h2>
 
-<form method="post" action="{{ url_for('add_users') }}">
-    <dl>
-        {{ form.hidden_tag() }}
-
-        {{ form.user_login(placeholder='Логін користувача') }}
-        {% for message in form.user_login.errors %}
-        <text>{{ message }}</text>
-        {% endfor %} <br>
-
-        {{ form.user_password(placeholder='Пароль користувача') }}
-        {% for message in form.user_password.errors %}
-        <text>{{ message }}</text>
-        {% endfor %} <br>
-        {{ form.submit }}
-    </dl>
-</form>
-
 
 {% if users %}
 <table class="users">
 
     <tr>
-        <th> Логін</th>
-        <th> Пароль</th>
-        <th> статус</th>
-        <th> дія</th>
+        <th> id </th>
+        <th> client_id </th>
+        <th> portal </th>
+        <th> user_name </th>
+        <th> photo </th>
+        <th> status </th>
+        <th> is_admin </th>
+        <th> дія </th>
     </tr>
     {% endif %}
 
     {% for user in users %}
 
-    <tr>
+    <tr id="{{ user.id }}">
+        <td> {{ user.id }}</td>
+        <td> {{ user.client_id }}</td>
+        <td> {{ user.portal }}</td>
         <td> {{ user.user_name }}</td>
-        <td> {{ user.password }}</td>
+        <td> {{ user.photo }}</td>
         <td> {{ user.status }}</td>
+        <td> {{ user.is_admin }}</td>
 
         <!-- блок видалення юзера -->
         <td>
-        <form name="FormForDeleteUser_{{user.id}}" action="{{ url_for('del_users', us_id = user.id) }}" method="post">
             <!-- кнопка видалення -->
-                        <a name="delete_everything" id="{{user.id}}"><u> видалити </u></a>
-                        <span id="{{user.id}}" name='delete_hide_form' style="display:none;">
-                                <a onclick="document.FormForDeleteUser_{{user.id}}.submit();">
-                            <abbr title="Видалити" name='delete_yes'>
-                                <img src="{{ url_for('static', filename='img/trash.png') }}"/>
-                            </abbr>
-                                </a>
-                            /
-                            <abbr title="Відмінити" name="delete_no">
-                                <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
-                            </abbr>
-                        </span>
-        </form>
+            <img src="{{ url_for('static', filename='img/trash.png')}}" name="delete_everything" id="{{ user.id }}" title="Видалити" />
+            <span id="{{user.id}}" name='delete_hide_form' style="display:none;">
+                <abbr title="Видаляй" name='delete_yes'>
+                    <img src="{{ url_for('static', filename='img/accept.png') }}"/>
+                </abbr>
+                    /
+                <abbr title="Я передумав" name="delete_no">
+                    <img src="{{ url_for('static', filename='img/cancel.png') }}"/>
+                </abbr>
+            </span>
         </td>
-
     </tr>
 
     {% else %}

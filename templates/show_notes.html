@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
-
 {% block body %}
 
 <!-- форма вводу тексту -->
 {% if session.logged_user and
       blog_form_visible and
-      view_user == session.user_name %}
+      view_user.user_name == session.user_name %}
 
     {{ form.hidden_tag() }}
     <dl>
@@ -27,7 +26,7 @@
     {% if note.global_visible or
           note.user_name == session.user_name or
           session.logged_admin or
-          view_user == 'deleted_user' %}
+          view_user.user_id == 0 %}
 
     <table class="post_head" id="{{ note.id }}">
         <li>
@@ -47,7 +46,7 @@
                     blog_form_visible and
                     (note.user_name == session.user_name or
                     session.logged_admin or
-                    view_user == 'deleted_user') %}
+                    view_user.user_id == 0) %}
                         <div class="visible">видно всім</div>
                 {% else %}
                         <div class="visible" style="display: none;">видно всім</div>
@@ -59,8 +58,13 @@
             <!-- автор запису -->
             <td class="left">
                 <h2 class="post">
-                    <a class="not_like_link_user" href="{{ url_for('show_notes', user_name=note.user_name) }}"> {{ note.user_name }} </a>
-                    {% if session.logged_admin or session.user_name == note.user_name %}
+                    {% if note.user_name %}
+                    <a class="not_like_link_user" href="{{ url_for('show_notes', user_id=note.user_id) }}"> {{ note.user_name }} </a>
+                    {% else %}
+                    <a class="not_like_link_user" href="{{ url_for('show_notes', user_id=0) }}"> ~Видаленний~ </a>
+                    {% endif %}
+
+                    {% if session.logged_admin or session.user_id == note.user_id %}
                     <!-- соус поста -->
                     <img src="{{ url_for('static', filename='img/edit.png')}}" name="edit_this_post" id="{{ note.id }}" title="Редагувати"/>
                     {% endif %}

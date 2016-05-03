@@ -35,34 +35,6 @@ app.config.from_object(__name__)
 ###############################################################################
 # WTForm's
 ###############################################################################
-class LoginForm(Form):
-    psw_min = 3
-    psw_max = 15
-    auth_login = StringField('Логін',
-        [validators.DataRequired(message='логін не може бути пустим')])
-
-    auth_password = PasswordField('Пароль',
-        [validators.Length(min=psw_min, max=psw_max,
-        message='пароль має бути від %s до %s символів' % (psw_min, psw_max))])
-
-    submit = SubmitField('Зайти')
-
-
-class UserForm(Form):
-    len_min = 3
-    len_max = 15
-    user_login = StringField('Логін користувача',
-        [validators.DataRequired(message='логін не може бути пустим'),
-         validators.Length(min=len_min, max=len_max,
-         message='логін має бути від %s до %s символів' % (len_min, len_max))])
-
-    user_password = StringField('Пароль користувача',
-        [validators.Length(min=len_min, max=len_max,
-        message='пароль має бути від %s до %s символів' % (len_min, len_max))])
-
-    submit = SubmitField('Добавити')
-
-
 class BlogForm(Form):
     blog_text = TextAreaField("text",
         [validators.Length(max=3, message='цей грьобаний текст ніколи не відобразиться')])
@@ -101,15 +73,6 @@ def close_db(error):
         g.sqlite_db.close()
 
 
-def login_in_db(login):
-    db = get_db()
-    cur = db.execute(sql_scripts.valid_user_name, [login]).fetchall()
-    for i in cur:
-        if i['user_name'] == login:
-            return True
-    return False
-
-
 def init_db():
     """
     create DB
@@ -119,40 +82,6 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         #db.commit()
-
-
-def show_db(db_name):
-    """
-    show DB content
-    """
-    with app.app_context():
-        db = get_db()
-        if db_name == 'notes':
-            cur_nt = db.execute("""
-                         select *
-                         from notes
-                         """)
-            rows = cur_nt.fetchall()
-            print(('ID', 'timestamp', 'Text', 'User_id', 'global_visible'))
-            for row in rows:
-                print((row['id'],
-                      row['timestamp'],
-                      row['text'],
-                      row['user_id'],
-                      row['global_visible']))
-
-        elif db_name == 'users':
-            cur_us = db.execute("""
-                         select *
-                         from users
-                         """)
-            rows = cur_us.fetchall()
-            print(('ID', 'User_name', 'Password', 'Status'))
-            for row in rows:
-                print((row['id'],
-                      row['user_name'],
-                      row['password'],
-                      row['status']))
 
 
 ###############################################################################
@@ -173,39 +102,11 @@ def logging(user_admin_session):
     return decor
 
 
-@app.route('/login/', methods=['POST', 'GET'])
+@app.route('/login', methods=['GET'])
 def login():
     if session.get('logged_user'):
         return redirect(url_for('show_notes'))
-
-    error = None
-    db_login = None
-    db_pass = None
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        # перевірить наявність в базі
-        db = get_db()
-        cur = db.execute(sql_scripts.get_user,
-                [form.auth_login.data, form.auth_password.data]).fetchall()
-        for c in cur:
-            db_id    = c['id']
-            db_login = c['user_name']
-            db_pass  = c['password']
-
-        if not login_in_db(form.auth_login.data):
-            error = 'Логін не знайдено'
-        elif form.auth_password.data != db_pass:
-            error = 'Невірний пароль'
-        else:
-            session['logged_user'] = True
-            session['user_name']   = form.auth_login.data
-            session['user_id']     = db_id
-            if db_login == 'admin':
-                session['logged_admin'] = True
-            flash('Ви успішно авторизуватись, привіт %s' % form.auth_login.data)
-            return redirect(url_for('show_notes', user_name=session.get('user_name')))
-    return render_template('login.html', error=error, form=form)
+    return render_template('login.html')
 
 
 @app.route('/logout', methods=['GET'])
@@ -214,32 +115,29 @@ def logout():
     session.pop('logged_admin', None)
     session.pop('user_name', None)
     session.pop('user_id', None)
-    # session.pop('photo', None)
-    # session.pop('token', None)
+    session.pop('photo', None)
     return redirect(url_for('show_notes'))
 
 
 @app.route('/', methods=['GET'])
 @app.route('/view/<note_id>', methods=["GET"])
-@app.route('/users/<user_name>', methods=['GET'])
-def show_notes(user_name=None, note_id=None):
+@app.route('/users/<int:user_id>', methods=['GET'])
+def show_notes(user_id=None, note_id=None):
     db = get_db()
     form = BlogForm()
 
-    if user_name == 'deleted_user':
+    if user_id == 0:
         notes = db.execute(sql_scripts.get_notes_deleted_users).fetchall()
         blog_form_visible = True
-    elif user_name:
-        notes = db.execute(sql_scripts.get_user_notes, [user_name]).fetchall()
+    elif user_id:
+        notes = db.execute(sql_scripts.get_user_notes, [user_id]).fetchall()
         blog_form_visible = True
     else:
         notes = db.execute(sql_scripts.get_all_notes, [session.get('user_id')]).fetchall()
         blog_form_visible = False
 
     if note_id:
-        print('||DEBUG|', note_id)
         notes = db.execute(sql_scripts.get_note_by_node_id, [note_id]).fetchall()
-        print("||user_id|", session.get('user_id'), notes[0]['user_id'])
         if session.get('user_id') == notes[0]['user_id']:
             blog_form_visible = True
         else:
@@ -248,9 +146,15 @@ def show_notes(user_name=None, note_id=None):
     # user list
     cur = db.execute(sql_scripts.get_all_users)
     users = cur.fetchall()
+    view_user = {}
+    for i in users:
+        if i['id'] == user_id:
+            view_user['user_name'] = i['user_name']
+            view_user['user_id']   = i['id']
+            view_user['photo']     = i['photo']
     return render_template('show_notes.html',
                            blog_form_visible=blog_form_visible,
-                           view_user=user_name,
+                           view_user=view_user,
                            notes=notes,
                            form=form,
                            users=users)
@@ -258,41 +162,11 @@ def show_notes(user_name=None, note_id=None):
 
 @app.route('/users/view/', methods=['GET'])
 @logging('logged_admin')
-def show_users(form=None):
+def show_users():
     db = get_db()
-    if not form:
-        form = UserForm()
     cur = db.execute(sql_scripts.get_all_users)
     users = cur.fetchall()
-    return render_template('show_users.html', users=users, form=form)
-
-
-@app.route('/users/add/', methods=['POST'])
-@logging('logged_admin')
-def add_users():
-    db = get_db()
-    form = UserForm()
-    if form.validate_on_submit():
-        if login_in_db(form.user_login.data):
-            flash('Такий логін вже є')
-        else:
-            db.execute(sql_scripts.add_user,
-                      [form.user_login.data, form.user_password.data])
-            flash('Юзер успішно добавлений')
-            db.commit()
-            form.user_login.data = ''
-            form.user_password.data = ''
-    return show_users(form)
-
-
-@app.route('/users/del/<us_id>', methods=['POST'])
-@logging('logged_admin')
-def del_users(us_id):
-    db = get_db()
-    db.execute(sql_scripts.del_user, [us_id])
-    db.commit()
-    flash('Користувач видалений')
-    return redirect(url_for('show_users'))
+    return render_template('show_users.html', users=users)
 
 
 # @app.route('/static/<filename>')
@@ -347,17 +221,19 @@ def ajax_create_note():
             db.commit()
         except sqlite3.OperationalError:
             return jsonify(status='ERR', message='якесь гівно блочить базу')
-        print('note ADD', note_text, session.get('user_id'), int(note_visible))
-        # take: note_id, user_name, timestamp
+
+        # дістаємо: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
-                        [session.get('user_name')])
+                        [session.get('user_id')])
         note = cur.fetchall()
 
-        user_name = session.get('user_name')
+        user_id   = session['user_id']
+        user_name = session['user_name']
         timestamp = note[0]['timestamp']
         note_id   = note[0]['id']
 
         return jsonify(status='OK', message='Додано запис, ІД:' + str(note_id),
+            user_id=user_id,
             user_name=user_name,
             timestamp=timestamp,
             note_id=note_id)
@@ -445,6 +321,22 @@ def ajax_delete_note():
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
 
 
+@app.route('/ajax_delete_user', methods=['POST'])
+def ajax_delete_user():
+    user_id = request.form['user_id']
+    db = get_db()
+    db.execute(sql_scripts.del_user, [user_id])
+
+    if session.get('logged_admin'):
+        try:
+            db.commit()
+        except sqlite3.OperationalError:
+            return jsonify(status='ERR', message='якесь гівно блочить базу')
+        return jsonify(status='OK', message='Видалено користувача, ІД:' + user_id)
+
+    return jsonify(status='ERR', message='спочатку потрібно авторизуватись')
+
+
 ###############################################################################
 # auth API Vk
 ###############################################################################
@@ -459,8 +351,7 @@ REDIRECT_URI = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
 @app.route('/auth_vk', methods=['GET'])
 def auth_vk():
     # on local
-    visual_res = {"access_token":"a1ab189b539da01920342158ca5464cd5555bcec98314de16eb6251c26c2b99b5ba163b667dd3393cef42","expires_in":86399,"user_id":137375300}
-    #registration(visual_res)
+    visual_res = {'expires_in': 86399, 'user_id': 137375300, 'access_token': '8d0619f4fa6dd354ba31259bdc7cafaf377c4e1c87fee6708f32a46072668ef648837f2c36d03ce7c61f9'}
     return registration(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
@@ -516,45 +407,34 @@ def registration(access_dict):
     session['logged_user'] = True
     session['user_name'] = client_dict.get('first_name') + ' ' + \
                            client_dict.get('last_name')
-    session['user_id'] = client_dict.get('id')
     session['photo'] = client_dict.get('photo')
-    print('SESSION', session['logged_user'], session['user_name'], session['user_id'], session['photo'])
+    auth_user_id = client_dict.get('id')
+    client_portal = 'vk.com'
 
     db = get_db()
     db.execute(sql_scripts.update_insert_user,
-                    [session['user_id'],
-                     session['user_id'],
-                     'vk_com',
+                    [auth_user_id,
+                     auth_user_id,
+                     client_portal,
                      session['user_name'],
                      session['photo'],
-                     session['user_id'],
-                     session['user_id']])
+                     auth_user_id,
+                     auth_user_id])
     db.commit()
 
 
     # add admin role
     cur = db.execute(sql_scripts.get_user_head,
-                     [session['user_id']]).fetchall()
+                     [auth_user_id,
+                      client_portal]).fetchall()
     for cr in cur:
+        session['user_id'] = cr['id']
         if cr['is_admin']:
             session['logged_admin'] = True
         user_status = cr['status']
 
+    return redirect(url_for('show_notes', user_id=session.get('user_id')))
 
-    return redirect(url_for('show_notes', user_name=session.get('user_name')))
-
-
-
-
-
-
-@app.route('/login_new/', methods=['GET'])
-def login_new():
-    if session.get('logged_user'):
-        return redirect(url_for('show_notes'))
-
-    form = LoginForm()
-    return render_template('login.html', form=form)
 
 ###############################################################################
 if __name__ == '__main__':

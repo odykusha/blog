@@ -1,7 +1,7 @@
 <!doctype html>
 <title>Flaskr, записи
 {% if view_user %}
-    {{view_user}}
+    {{ view_user.user_name }}
 {% else %}
     всіх
 {% endif %}
@@ -24,14 +24,18 @@
             <li><a href="{{ url_for('show_notes') }}"> Загальний </a></li>
 
         {% if session.logged_user %}
-            <li><a href="{{ url_for('show_notes', user_name=session.get('user_name')) }}"> Мої записи </a></li>
-            <li><div class="green_button" style="padding: 6px 16px"> ви зайшли як: {{ session.user_name }} <img src="{{session.get('photo')}}" class="vk_image"/> </div></li>
+            <li><a href="{{ url_for('show_notes', user_id=session.get('user_id')) }}" style="padding: 0px">
+                <div class="green_button" style="padding: 6px 16px">
+                    Мої записи
+                    <img src="{{session.get('photo')}}" class="vk_image"/>
+                </div> </a>
+            </li>
         {% endif %}
 
         {% if view_user %}
-            <li style="float:none"><a style="padding: 6px">Записи користувача <u>{{view_user}}</u> <!--<img src="{{session.get('photo')}}" class="vk_image"/>--> </a> </li>
+            <li style="float:none"><a style="padding: 6px">Записи користувача <u>{{view_user.user_name}}</u> <img src="{{view_user.photo}}" class="vk_image"/> </a> </li>
         {% else %}
-            <li style="float:none"><a>Записи <u>всіх</u> користувачів</a></li>
+            <li style="float:none"><a style="padding: 6px">Записи <u>всіх</u> користувачів <img src="http://new.vk.com/images/deactivated_50.png" class="vk_image"/> </a></li>
         {% endif %}
         </td>
 
@@ -63,9 +67,9 @@
 <div id="user_list"> <!-- style="display:none" -->
         Виберіть користувача:<br>
     {% for user in users %}
-        <a href="{{ url_for('show_notes', user_name = user.user_name) }}"> {{ user.user_name }} </a> <br>
+        <a href="{{ url_for('show_notes', user_id = user.id) }}"> {{ user.user_name }} </a> <br>
     {% endfor %}
-        <a href="{{ url_for('show_notes', user_name = 'deleted_user') }}"> <u> Видаленні </u></a><br>
+        <a href="{{ url_for('show_notes', user_id = 0) }}"> <u> Видаленні </u></a><br>
 </div>
 
 

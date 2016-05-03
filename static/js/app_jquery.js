@@ -19,10 +19,62 @@
         $(this).parent().hide();
     });
 
+ // видалення користувача
+    // відобразити кнопку видалення
+    $('.users').on("click", 'img[name="delete_everything"]', function(){
+        $(this).hide();
+        $(this).next('span').show();
+    });
+
+    // сховати кнопку видалення
+    $('.users').on("click", 'abbr[name="delete_no"]', function() {
+        $(this).parent().parent().find('img[name="delete_everything"]').show();
+        $(this).parent().hide();
+    });
+
+// ------------------------------------------------------------------- //
+// ajax запит на видалення користувача
+    $('.users').on("click", 'abbr[name="delete_yes"]', function(){   //.posts
+        var user_id = $(this).parent().attr("id");
+
+        $.ajax({
+        type : 'POST',	   // тип запросу
+        dataType : 'json', // тип даних
+        // timeout: 10,
+        url  : '/ajax_delete_user',    // URL по запиту, див. @app.route('/ajax_delete_user'
+        data : {           // дані які передаємо
+            user_id
+               },
+
+        // якщо все ок, то виконуємо функцію success інакше error
+        success: function(data) {
+            if (data.status == 'OK') {
+                $("tr[id=" + user_id + "]").hide();
+                $('.message_ok').show('blind');
+                $('.message_ok').text(data.message);
+                console.log("|AJAX|delete_user|OK|видалено користувача, ID:", user_id);
+                }
+
+            if (data.status == 'ERR') {
+                // відображаємо повідомлення з помилкою
+                $('.message_error').show('blind');
+                $('.message_error').text(data.message);
+                console.log('|AJAX|delete_user|ERROR||', data.message);
+                }
+
+            },
+
+        error: function (textStatus, errorThrown) {
+            $('.message_error').show('blind');
+            $('.message_error').text('шось зовсім пішло не так :(((');
+            console.log("|AJAX|delete_user|ERROR|шось зовсім пішло не так :(((", errorThrown);
+            }
+
+        });
+    });
 // ------------------------------------------------------------------- //
 // ajax запит на відображення соуса записа
     $('.entries').on("click", 'img[name="edit_this_post"]', function(){   //.posts
-        console.log( $( this ).attr("id") );
         var note_id = $(this).attr("id");
 
         // приховуємо дефолтне flash вікно
@@ -254,7 +306,7 @@
 '<!-- автор запису -->'+
             '<td class="left">'+
                 '<h2 class="post">'+
-                    '<a class="not_like_link_user" href="/users/admin"> '+ data.user_name +' </a>'+
+                    '<a class="not_like_link_user" href="/users/'+ data.user_id + '"> '+ data.user_name +' </a>'+
                     '<!-- соус поста -->'+
                     '<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" title="Редагувати"/>'+
                 '</h2>'+
