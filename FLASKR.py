@@ -125,15 +125,37 @@ def logout():
 def show_notes(user_id=None, note_id=None):
     db = get_db()
     form = BlogForm()
-
-    if user_id == 0:
-        notes = db.execute(sql_scripts.get_notes_deleted_users).fetchall()
-        blog_form_visible = True
-    elif user_id:
-        notes = db.execute(sql_scripts.get_user_notes, [user_id]).fetchall()
-        blog_form_visible = True
+    MAX_NOTES_ON_PAGE = 10
+    PAGE = request.args.get('page', 0, type=int)
+    if '?page=' in request.url:
+        PAGINATOR = {'url_head': request.url.split('page=')[0],
+                     'url_page': int(request.url.split('page=')[1]),
+                     'url_user_id': user_id}
     else:
-        notes = db.execute(sql_scripts.get_all_notes, [session.get('user_id')]).fetchall()
+        PAGINATOR = {'url_head': request.url.split('page=')[0],
+                     'url_page': 0,
+                     'url_user_id': user_id}
+    print('|page|', PAGE, PAGINATOR)
+
+    # записи видаленого користувача
+    if user_id == 0:
+        notes = db.execute(sql_scripts.get_notes_deleted_users,
+                           [PAGE * MAX_NOTES_ON_PAGE,
+                            MAX_NOTES_ON_PAGE]).fetchall()
+        blog_form_visible = True
+    # записи одного користувача
+    elif user_id:
+        notes = db.execute(sql_scripts.get_user_notes,
+                           [user_id,
+                            PAGE * MAX_NOTES_ON_PAGE,
+                            MAX_NOTES_ON_PAGE]).fetchall()
+        blog_form_visible = True
+    # записи всіх користувачів
+    else:
+        notes = db.execute(sql_scripts.get_all_notes,
+                           [session.get('user_id'),
+                            PAGE * MAX_NOTES_ON_PAGE,
+                            MAX_NOTES_ON_PAGE]).fetchall()
         blog_form_visible = False
 
     if note_id:
@@ -157,7 +179,8 @@ def show_notes(user_id=None, note_id=None):
                            view_user=view_user,
                            notes=notes,
                            form=form,
-                           users=users)
+                           users=users,
+                           paginator=PAGINATOR)
 
 
 @app.route('/users/view/', methods=['GET'])
@@ -224,7 +247,8 @@ def ajax_create_note():
 
         # дістаємо: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
-                        [session.get('user_id')])
+                        [session.get('user_id'),
+                         0, 1])
         note = cur.fetchall()
 
         user_id   = session['user_id']

@@ -11,6 +11,7 @@ get_all_notes = """
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
     where (nt.global_visible = 1 or usr.id = (?))
     order by id desc
+    LIMIT (?),(?)
     """
 
 get_user_notes = """
@@ -24,6 +25,7 @@ get_user_notes = """
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
     where usr.id = (?)
     order by id desc
+    LIMIT (?),(?)
     """
 
 get_notes_deleted_users = """
@@ -36,7 +38,8 @@ get_notes_deleted_users = """
     from notes nt
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
     where usr.id is null
-    order by id desc;
+    order by id desc
+    LIMIT (?),(?);
     """
 
 add_note = """

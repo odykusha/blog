@@ -113,5 +113,17 @@
     {% endfor %}
 </ul>
 
+<!-- Пагінатор -->
+<table class="post_head">
+    <tr>
+    {% if paginator.url_page > 0 %}
+    <td class="left">  <a href="{{ url_for('show_notes', page=paginator.url_page - 1, user_id=paginator.url_user_id) }}" > Попередні </a> </td>
+    {% endif %}
+
+    {% if notes|length == 10 %}
+    <td class="right"> <a href="{{ url_for('show_notes', page=paginator.url_page + 1, user_id=paginator.url_user_id) }}" > Наступні </a> </td>
+    {% endif %}
+    </tr>
+</table>
 
 {% endblock %}
