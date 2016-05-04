@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-import os
 import functools
+import os
 import sqlite3
 
-from flask import Flask, session, g, redirect, url_for, render_template, flash, \
-                  request, abort, jsonify
+from flask import Flask, session, g, redirect, url_for, render_template, request, jsonify
 from flask.ext.wtf import Form
-from wtforms import StringField, PasswordField, SubmitField, \
+from wtforms import SubmitField, \
                     validators, TextAreaField, BooleanField
+
 # from flask.ext.cache import Cache
 # from flask_debugtoolbar import DebugToolbarExtension
 
-import sql_scripts
-import tools
-
+from app_tools import tools, sql_scripts
 
 ###############################################################################
 # Configuration
@@ -25,6 +23,8 @@ SECRET_KEY = os.urandom(25)
 CSRF_ENABLED = True
 HOST = '0.0.0.0'
 PORT = 8080
+
+MAX_NOTES_ON_PAGE = 10
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -102,13 +102,6 @@ def logging(user_admin_session):
     return decor
 
 
-@app.route('/login', methods=['GET'])
-def login():
-    if session.get('logged_user'):
-        return redirect(url_for('show_notes'))
-    return render_template('login.html')
-
-
 @app.route('/logout', methods=['GET'])
 def logout():
     session.pop('logged_user', None)
@@ -120,22 +113,19 @@ def logout():
 
 
 @app.route('/', methods=['GET'])
-@app.route('/view/<note_id>', methods=["GET"])
+@app.route('/view/<int:note_id>', methods=["GET"])
 @app.route('/users/<int:user_id>', methods=['GET'])
 def show_notes(user_id=None, note_id=None):
-    db = get_db()
-    form = BlogForm()
-    MAX_NOTES_ON_PAGE = 10
     PAGE = request.args.get('page', 0, type=int)
+    form = BlogForm()
+    db = get_db()
+
     if '?page=' in request.url:
-        PAGINATOR = {'url_head': request.url.split('page=')[0],
-                     'url_page': int(request.url.split('page=')[1]),
+        paginator = {'url_page': int(request.url.split('page=')[1]),
                      'url_user_id': user_id}
     else:
-        PAGINATOR = {'url_head': request.url.split('page=')[0],
-                     'url_page': 0,
+        paginator = {'url_page': 0,
                      'url_user_id': user_id}
-    print('|page|', PAGE, PAGINATOR)
 
     # записи видаленого користувача
     if user_id == 0:
@@ -180,7 +170,7 @@ def show_notes(user_id=None, note_id=None):
                            notes=notes,
                            form=form,
                            users=users,
-                           paginator=PAGINATOR)
+                           paginator=paginator)
 
 
 @app.route('/users/view/', methods=['GET'])
@@ -247,7 +237,7 @@ def ajax_create_note():
 
         # дістаємо: note_id, user_name, timestamp
         cur = db.execute(sql_scripts.get_user_notes,
-                        [session.get('user_id'),
+                         [session.get('user_id'),
                          0, 1])
         note = cur.fetchall()
 
@@ -366,6 +356,7 @@ def ajax_delete_user():
 ###############################################################################
 import requests, json
 
+
 CLIENT_ID = 5435272
 CLIENT_SECRET = '5aYHQwz5S4BofTTA36g3'
 # get uri link where running app
@@ -374,8 +365,10 @@ REDIRECT_URI = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
 
 @app.route('/auth_vk', methods=['GET'])
 def auth_vk():
+    if session.get('logged_user'):
+        return redirect(url_for('show_notes'))
     # on local
-    visual_res = {'expires_in': 86399, 'user_id': 137375300, 'access_token': '8d0619f4fa6dd354ba31259bdc7cafaf377c4e1c87fee6708f32a46072668ef648837f2c36d03ce7c61f9'}
+    visual_res = {"access_token":"e00b378a0a588ba2ec3444137c3fcdeba3c1d491ec50556cee3cc3aae9145074ef83cd54fba29e5c7005f","expires_in":86387,"user_id":137375300}
     return registration(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
