@@ -28,6 +28,7 @@ li.entries      { margin: 0.8em 1.2em;}
 .visible        { color: #9743FF; }
 .id_note        { color: rgba(0,0,0,0.4); }
 .hidden_post    { display: none; background-color: #BDBDBD; }
+.error_template { text-align: center; padding: 200px; }
 
 .not_like_link_id       {text-decoration: none; color: rgba(0,0,0,0.4);}
 .not_like_link_user     {text-decoration: none; color: hsla(242, 88%, 54%, 0.81); }

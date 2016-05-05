@@ -150,10 +150,13 @@ def show_notes(user_id=None, note_id=None):
 
     if note_id:
         notes = db.execute(sql_scripts.get_note_by_node_id, [note_id]).fetchall()
-        if session.get('user_id') == notes[0]['user_id']:
-            blog_form_visible = True
-        else:
-            blog_form_visible = False
+        try:
+            if session.get('user_id') == notes[0]['user_id']:
+                blog_form_visible = True
+            else:
+                blog_form_visible = False
+        except:
+            pass
 
     # user list
     cur = db.execute(sql_scripts.get_all_users)
@@ -194,17 +197,20 @@ def show_users():
 ###############################################################################
 @app.errorhandler(403)
 def err403(error):
-    return "У вас немає прав для перегляду записів інших користувачів!<br> %s" % error, 403
+    message = "У вас немає прав для перегляду записів інших користувачів!<br> " + str(error)
+    return render_template('error.html', error_message=message), 403
 
 
 @app.errorhandler(404)
 def err404(error):
-    return "Шукаєш те, чого немає!<br> %s" % error, 404
+    message = "Шукаєш те, чого немає!<br> " + str(error)
+    return render_template('error.html', error_message=message), 404
 
 
 @app.errorhandler(405)
 def err405(error):
-    return "Такий метод не підтримується!<br> %s" % error, 405
+    message = "Такий метод не підтримується!<br> " + str(error)
+    return render_template('error.html', error_message=message), 405
 
 
 ###############################################################################
@@ -241,8 +247,8 @@ def ajax_create_note():
                          0, 1])
         note = cur.fetchall()
 
-        user_id   = session['user_id']
-        user_name = session['user_name']
+        user_id   = session.get('user_id')
+        user_name = session.get('user_name')
         timestamp = note[0]['timestamp']
         note_id   = note[0]['id']
 
@@ -339,9 +345,9 @@ def ajax_delete_note():
 def ajax_delete_user():
     user_id = request.form['user_id']
     db = get_db()
-    db.execute(sql_scripts.del_user, [user_id])
 
     if session.get('logged_admin'):
+        db.execute(sql_scripts.del_user, [user_id])
         try:
             db.commit()
         except sqlite3.OperationalError:
@@ -368,7 +374,7 @@ def auth_vk():
     if session.get('logged_user'):
         return redirect(url_for('show_notes'))
     # on local
-    visual_res = {"access_token":"e00b378a0a588ba2ec3444137c3fcdeba3c1d491ec50556cee3cc3aae9145074ef83cd54fba29e5c7005f","expires_in":86387,"user_id":137375300}
+    visual_res = {"access_token":"5ea99aae364db29f5610253844860575ab85cb447f4d931eb2c7013405b0c43ffc1b1f68208959d29e9ed","expires_in":86390,"user_id":137375300}
     return registration(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
@@ -433,8 +439,8 @@ def registration(access_dict):
                     [auth_user_id,
                      auth_user_id,
                      client_portal,
-                     session['user_name'],
-                     session['photo'],
+                     session.get('user_name'),
+                     session.get('photo'),
                      auth_user_id,
                      auth_user_id])
     db.commit()

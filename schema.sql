@@ -10,15 +10,6 @@ create table notes (
 drop table if exists users;
 create table users (
  id integer primary key autoincrement,
- user_name text not null,
- password text not null,
- status integer DEFAULT 1
-);
-
-
-drop table if exists users_new;
-create table users_new (
- id integer primary key autoincrement,
  client_id integer not null,
  system text not null,
  user_name text not null,
