@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block title %}
+Список користувачів
+{% endblock %}
 {% block body %}
 
 <h2>Управління користувачами</h2>
@@ -26,7 +29,7 @@
         <td> {{ user.client_id }}</td>
         <td> {{ user.portal }}</td>
         <td> {{ user.user_name }}</td>
-        <td> {{ user.photo }}</td>
+        <td> <a href="{{ user.photo }}"/> {{ user.photo }} </td>
         <td> {{ user.status }}</td>
         <td> {{ user.is_admin }}</td>
 

@@ -1,4 +1,14 @@
 {% extends "layout.html" %}
+
+{% block title %}
+    Flaskr, записи
+{% if view_user %}
+    {{ view_user.user_name }}
+{% else %}
+    всіх
+{% endif %}
+{% endblock %}
+
 {% block body %}
 
 <!-- форма вводу тексту -->
@@ -30,8 +40,9 @@
 
     <table class="post_head" id="{{ note.id }}">
         <li>
-             <!-- видно всім -->
             <tr>
+                <td rowspan="2" style="width: 30px;"> <img src="{{ note.photo }}" class="vk_image"/> </td>
+
                 <td class="left">
                     <small>
                     <div>
@@ -40,6 +51,7 @@
                     </small>
                 </td>
 
+            <!-- видно всім -->
             <td class="right">
                 <small>
                 {% if note.global_visible and

@@ -1,5 +1,4 @@
 import requests
-import sys
 
 STOP_WORDS = ['script', 'console']
 
@@ -43,10 +42,8 @@ def get_tag(some_link):
     try:
         response = requests.get(some_link)
     except requests.exceptions.ProxyError:
-        #print('||*|| except', sys.exc_info()[0])
         return get_a_tag(some_link)
     except:
-        #print('||**|| except', sys.exc_info()[0])
         if 'http' in some_link[0:4]:
             return get_a_tag(some_link)
         # xss atack

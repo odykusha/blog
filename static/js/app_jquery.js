@@ -42,7 +42,7 @@
         var user_id = $(this).parent().attr("id");
 
         $.ajax({
-        type : 'POST',	   // тип запросу
+        type : 'DELETE',	   // тип запросу
         dataType : 'json', // тип даних
         // timeout: 10,
         url  : '/ajax_delete_user',    // URL по запиту, див. @app.route('/ajax_delete_user'
@@ -223,7 +223,7 @@
             data: {
                 submit_id
                 },
-            type: 'POST',
+            type: 'DELETE',
             success: function(data){
                 if (data.status == 'OK') {
                     // скриваємо запис, який ми видалили

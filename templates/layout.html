@@ -1,10 +1,6 @@
 <!doctype html>
-<title>Flaskr, записи
-{% if view_user %}
-    {{ view_user.user_name }}
-{% else %}
-    всіх
-{% endif %}
+<title>
+{% block title %} {% endblock %}
 </title>
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
@@ -89,7 +85,7 @@
 <!-- auth google.com -->
 <td>
 <div class="left">
-    <a href="{{ url_for('auth_vk') }}">
+    <a title="скоро буде, сподіваюсь">
       <img src="{{ url_for('static', filename='img/gplus.png') }}" />
     </a>
 </div></td>

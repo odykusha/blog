@@ -208,7 +208,7 @@ def err405(error):
 
 
 ###############################################################################
-# AJAX note function
+# AJAX function
 ###############################################################################
 @app.route('/ajax_create_note', methods=['POST'])
 def ajax_create_note():
@@ -309,7 +309,7 @@ def ajax_change_note():
     return jsonify(status='ERR', message='я хз чому так вийшло')
 
 
-@app.route('/ajax_delete_note', methods=['POST'])
+@app.route('/ajax_delete_note', methods=['DELETE'])
 def ajax_delete_note():
     note_id = request.form['submit_id']
     db = get_db()
@@ -335,7 +335,7 @@ def ajax_delete_note():
         return jsonify(status='ERR', message='хитрожопий, ти не можеш видалити чужий запис')
 
 
-@app.route('/ajax_delete_user', methods=['POST'])
+@app.route('/ajax_delete_user', methods=['DELETE'])
 def ajax_delete_user():
     user_id = request.form['user_id']
     db = get_db()
