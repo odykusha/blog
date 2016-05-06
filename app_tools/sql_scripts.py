@@ -3,7 +3,7 @@
 get_all_notes = """
     select nt.id as id,
     nt.text as text,
-    datetime(nt.timestamp, 'unixepoch', 'localtime') as timestamp,
+    datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     usr.user_name as user_name,
     usr.id as user_id,
     (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
@@ -18,7 +18,7 @@ get_all_notes = """
 get_user_notes = """
     select nt.id as id,
     nt.text as text,
-    datetime(nt.timestamp, 'unixepoch', 'localtime') as timestamp,
+    datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     nt.user_id as user_id,
     usr.user_name as user_name,
     (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
@@ -33,7 +33,7 @@ get_user_notes = """
 get_notes_deleted_users = """
     select nt.id as id,
     nt.text as text,
-    datetime(nt.timestamp, 'unixepoch', 'localtime') as timestamp,
+    datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     usr.user_name as user_name,
     usr.id as user_id,
     (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
@@ -59,7 +59,7 @@ change_note = """
 
 get_note_by_node_id = """
     select nt.id as id,
-    datetime(nt.timestamp, 'unixepoch', 'localtime') as timestamp,
+    datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     nt.text as text,
     nt.user_id as user_id,
     usr.user_name as user_name,
