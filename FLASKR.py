@@ -247,16 +247,16 @@ def ajax_create_note():
                          0, 1])
         note = cur.fetchall()
 
-        user_id   = session.get('user_id')
-        user_name = session.get('user_name')
-        timestamp = note[0]['timestamp']
-        note_id   = note[0]['id']
+        data_for_generator = {'note_id'  : note[0]['id'],
+                              'note_text': note[0]['text'],
+                              'user_id'  : session.get('user_id'),
+                              'user_name': session.get('user_name'),
+                              'timestamp': note[0]['timestamp'],
+                              'photo'    : note[0]['photo']}
 
-        return jsonify(status='OK', message='Додано запис, ІД:' + str(note_id),
-            user_id=user_id,
-            user_name=user_name,
-            timestamp=timestamp,
-            note_id=note_id)
+        return jsonify(status='OK', message='Додано запис, ІД:' + str(data_for_generator['note_id']),
+                       note_id=data_for_generator['note_id'],
+                       created_html_block = tools.generate_html_block_note(data_for_generator))
     return jsonify(status='ERR', message='щось пішло не так')
 
 
@@ -374,7 +374,7 @@ def auth_vk():
     if session.get('logged_user'):
         return redirect(url_for('show_notes'))
     # on local
-    visual_res = {"access_token":"5ea99aae364db29f5610253844860575ab85cb447f4d931eb2c7013405b0c43ffc1b1f68208959d29e9ed","expires_in":86390,"user_id":137375300}
+    visual_res = {"access_token":"3dabbfd6e6db263d381cbe03ced161c1142b9032814c59c3e3bdae46160472d2a3f87657f9615a42dd683","expires_in":86385,"user_id":137375300}
     return registration(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
