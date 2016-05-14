@@ -11,7 +11,7 @@ from wtforms import SubmitField, \
 # from flask.ext.cache import Cache
 # from flask_debugtoolbar import DebugToolbarExtension
 
-from app_tools import tools, sql_scripts
+from app_tools import note_filter, sql_scripts
 
 ###############################################################################
 # Configuration
@@ -233,7 +233,7 @@ def ajax_create_note():
 
     if form.submit() and len(note_text) > 0:
         db.execute(sql_scripts.add_note,
-                   [tools.filter(note_text),
+                   [note_filter.filter(note_text),
                     session.get('user_id'),
                     int(note_visible)])
         try:
@@ -363,10 +363,16 @@ def ajax_delete_user():
 import requests, json
 
 
-CLIENT_ID = 5435272
-CLIENT_SECRET = '5aYHQwz5S4BofTTA36g3'
-# get uri link where running app
-REDIRECT_URI = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
+# for VK
+# http://new.vk.com/editapp?id=5435272&section=options
+CLIENT_ID_for_vk = 5435272
+CLIENT_SECRET_for_vk = '5aYHQwz5S4BofTTA36g3'
+REDIRECT_URI_for_vk = 'http://odykusha.pythonanywhere.com/get_access_token_vk'
+# for google+
+# https://console.developers.google.com/apis/credentials/oauthclient/678971134005-p04u8p3iq8tt6th81n9i5bq15i7ma851.apps.googleusercontent.com?project=blog-on-flask
+CLIENT_ID_for_gplus = '678971134005-p04u8p3iq8tt6th81n9i5bq15i7ma851.apps.googleusercontent.com'
+CLIENT_SECRET_for_gplus = 'cVOM2T1TrnXgK3jkkVv_jOl7'
+REDIRECT_URI_for_gplus = 'https://odykusha.pythonanywhere.com/get_access_token_gplus'
 
 
 @app.route('/auth_vk', methods=['GET'])
@@ -374,13 +380,13 @@ def auth_vk():
     if session.get('logged_user'):
         return redirect(url_for('show_notes'))
     # on local
-    visual_res = {"access_token":"5ea99aae364db29f5610253844860575ab85cb447f4d931eb2c7013405b0c43ffc1b1f68208959d29e9ed","expires_in":86390,"user_id":137375300}
-    return registration(visual_res)
+    visual_res = {"access_token":"948db4ec1c612fcd39819d24a2a9ba26bb22cb92edc46f1d74b2781db10cde8696630ecb75ce8b22ee35c","expires_in":86380,"user_id":137375300}
+    return registration_vk(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
-                                 params={'client_id': CLIENT_ID,
+                                 params={'client_id': CLIENT_ID_for_vk,
                                          'display':'page',
-                                         'redirect_uri': REDIRECT_URI,
+                                         'redirect_uri': REDIRECT_URI_for_vk,
                                          'scope':'status',
                                          'response_type':'code',
                                          'v': '5.50'})
@@ -395,9 +401,9 @@ def auth_vk():
 def get_access_token_vk():
     code = request.args.get('code')
     get_access_token = requests.get(url='https://oauth.vk.com/access_token',
-                                    params={'client_id': CLIENT_ID,
-                                            'client_secret': CLIENT_SECRET,
-                                            'redirect_uri': REDIRECT_URI,
+                                    params={'client_id': CLIENT_ID_for_vk,
+                                            'client_secret': CLIENT_SECRET_for_vk,
+                                            'redirect_uri': REDIRECT_URI_for_vk,
                                             'code': code})
     request_status = get_access_token.status_code
     if request_status != 200:
@@ -405,11 +411,10 @@ def get_access_token_vk():
 
     access_dict = json.loads(get_access_token.text)
     print("|| access_dict ||", access_dict)
-    registration(access_dict)
+    registration_vk(access_dict)
 
 
-
-def registration(access_dict):
+def registration_vk(access_dict):
     get_client_info = requests.get(url='https://api.vk.com/method/users.get',
                                    params={'user_id': access_dict['user_id'],
                                            'v': '5.50',
@@ -457,6 +462,57 @@ def registration(access_dict):
         user_status = cr['status']
 
     return redirect(url_for('show_notes', user_id=session.get('user_id')))
+
+
+
+
+@app.route('/auth_gplus', methods=['GET'])
+def auth_gplus():
+    if session.get('logged_user'):
+        return redirect(url_for('show_notes'))
+    # on local
+    visual_res = {'id_token': 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImU3ZGJmNTI2ZjYzOWMyMTRjZDc3YjM5NmVjYjlkN2Y4MWQ0N2IzODIifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhdF9oYXNoIjoiODJMejZvWnY1MEtaWVBONElMMDJKZyIsImF1ZCI6IjY3ODk3MTEzNDAwNS1wMDR1OHAzaXE4dHQ2dGg4MW45aTVicTE1aTdtYTg1MS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwNDMwMjI3MDk3MDYwMjI3OTc2NSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhenAiOiI2Nzg5NzExMzQwMDUtcDA0dThwM2lxOHR0NnRoODFuOWk1YnExNWk3bWE4NTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJoZCI6InNtYXJ0d2ViLmNvbS51YSIsImVtYWlsIjoiby5kaWt1c2hhQHNtYXJ0d2ViLmNvbS51YSIsImlhdCI6MTQ2MzE1MTAyMywiZXhwIjoxNDYzMTU0NjIzLCJuYW1lIjoi0J7Qu9C10LMg0JTQuNC60YPRiNCwIiwicGljdHVyZSI6Imh0dHBzOi8vbGg0Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tTHhmUVNjTkx5MDgvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQk0vbmhEaEVtYVY5encvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6ItCe0LvQtdCzIiwiZmFtaWx5X25hbWUiOiLQlNC40LrRg9GI0LAiLCJsb2NhbGUiOiJydSJ9.kJrFSEUtm4_EoJtAsd4VnrgKmhkQuglMC14eFbfvwvec5PKxj63WHl6NlLWkVxXXU_m5A_3k8_M818RJN-pFRddqX-XxJ2eDIomOmwmmRQnaOunWOa5RkzQOHOo2jrdQCpyR8Mf_gz_YdPac1AWhUaacXzw8l7Go4bFTxRNUt2U1kyBmzCWsfgNKBHZWaVUoVEL_BcP-57QsY5FAVI78QLzoqeW-W4Yjd4rTMfi9C2kr1N5jCqK4j5U2sFYIKRCUWg4kwUAJU1Xe_Ts48YDNE0MWHHMZc8X_-dWtRkLkTaFhjMh6bwvTXOHS4cHhZw71Uc0BPOgCNtroSf-xl49jyQ',
+                  'refresh_token': '1/a2Vc4DEaoHG9PtAcAxRja4MHONN6bcIfblWUIzeHHsUMEudVrK5jSpoR30zcRFq6',
+                  'token_type': 'Bearer',
+                  'access_token': 'ya29.CjHhAtYXDhrurj5115SifsCNFXeswkrFM1J4v4iANF2vgJXI3qcMYtB3WgClPD3tHZ7P',
+                  'expires_in': 3600}
+    return registration_gplus(visual_res)
+    # on real
+    get_user_code = requests.get(url='https://accounts.google.com/o/oauth2/auth',
+                                 params={'client_id': CLIENT_ID_for_gplus,
+                                         'redirect_uri': REDIRECT_URI_for_gplus,
+                                         'scope':'https://www.googleapis.com/auth/userinfo.profile',
+                                         'response_type':'code',
+                                         'approval_prompt': 'force',
+                                         'access_type': 'offline'})
+    request_status = get_user_code.status_code
+    if request_status == 200:
+        return redirect(get_user_code.url)
+    else:
+        return get_user_code.content, request_status
+
+
+@app.route('/get_access_token_gplus', methods=['GET'])
+def get_access_token_gplus():
+    code = request.args.get('code')
+    get_access_token = requests.post(url='https://www.googleapis.com/oauth2/v4/token',
+                                    params={'client_id': CLIENT_ID_for_gplus,
+                                            'client_secret': CLIENT_SECRET_for_gplus,
+                                            'redirect_uri': REDIRECT_URI_for_gplus,
+                                            'code': code,
+                                            'grant_type': 'authorization_code'})
+    request_status = get_access_token.status_code
+    if request_status != 200:
+        return get_access_token.content, request_status
+
+    access_dict = json.loads(get_access_token.text)
+    print("|| access_dict ||", access_dict)
+    return registration_gplus(access_dict)
+
+
+
+def registration_gplus(access_dict):
+    return str(access_dict)
 
 
 ###############################################################################
