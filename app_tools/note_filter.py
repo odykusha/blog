@@ -50,7 +50,7 @@ def get_tag(some_link):
         # xss atack
         for stop_word in STOP_WORDS:
             if stop_word in some_link:
-                some_link = some_link.replace(stop_word, '<img src="/static/img/noway.png" height="15px" width="15px" title="# '+ stop_word +'"/>')
+                some_link = some_link.replace(stop_word, '<img src="/static/img/noway-small.png" height="15px" width="15px" title="# '+ stop_word +'"/>')
         return some_link
 
     CONTENT_TYPE = response.headers['content-type']
