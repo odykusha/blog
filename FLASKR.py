@@ -247,16 +247,14 @@ def ajax_create_note():
                          0, 1])
         note = cur.fetchall()
 
-        user_id   = session.get('user_id')
-        user_name = session.get('user_name')
-        timestamp = note[0]['timestamp']
-        note_id   = note[0]['id']
-
-        return jsonify(status='OK', message='Додано запис, ІД:' + str(note_id),
-            user_id=user_id,
-            user_name=user_name,
-            timestamp=timestamp,
-            note_id=note_id)
+        dict_for_html_gen = {'note_id'  : note[0]['id'],
+                             'user_id'  : session.get('user_id'),
+                             'user_name': session.get('user_name'),
+                             'timestamp': note[0]['timestamp'],
+                             'note_text': note_text,
+                             'photo'    : session['photo']}
+        return jsonify(status='OK', message='Додано запис, ІД:' + str(dict_for_html_gen['note_id']),
+                       created_html_block = note_filter.generate_html_block_note(dict_for_html_gen))
     return jsonify(status='ERR', message='щось пішло не так')
 
 
