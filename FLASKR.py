@@ -465,7 +465,6 @@ def registration_vk(access_dict):
 
 
 
-
 @app.route('/auth_gplus', methods=['GET'])
 def auth_gplus():
     if session.get('logged_user'):
