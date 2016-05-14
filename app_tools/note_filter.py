@@ -1,5 +1,6 @@
 import requests
 
+
 STOP_WORDS = ['script', 'console']
 
 def get_value(word, left_symb, right_symb):
@@ -97,6 +98,68 @@ def filter(text):
     return text
 
 
+# -------------------------------------------------------------------------------------------------------------------- №
+def generate_html_block_note(data):
+    note_block = '<!-- тіло комента -->'+\
+    '<table class="post_head" id="'+ str(data['note_id']) +'">'+\
+            '<tr>'+\
+        '<td rowspan="2" style="width: 30px;"> <img src="' + data['photo'] + '" class="vk_image"> </td>'+\
+                '<td class="left">'+\
+                    '<small>'+\
+                    '<div>'+\
+                        '<a class="not_like_link_id" href="/view/'+ str(data['note_id']) +'"> ІД: '+ str(data['note_id']) +'</a>'+\
+                    '</div>'+\
+                    '</small>'+\
+                '</td>'+\
+            '<!-- видно всім -->'+\
+            '<td class="right">'+\
+                '<small>'+\
+                        '<div class="visible" style="display: none;">видно всім</div>'+\
+            '</small>'+\
+        '</td>'+\
+    '</tr>'+\
+'<!-- автор запису -->'+\
+            '<tr><td class="left">'+\
+                '<h2 class="post">'+\
+                    '<a class="not_like_link_user" href="/users/'+ str(data['user_id']) + '"> '+ data['user_name'] +' </a>'+\
+                    '<!-- соус поста -->'+\
+                    '<img src="/static/img/edit.png" name="edit_this_post" id="'+ str(data['note_id']) +'" title="Редагувати"/>'+\
+                '</h2>'+\
+            '</td>'+\
+            '<td class="right">'+\
+                '<small>'+\
+                        data['timestamp'] +\
+                        '<!-- кнопка видалення -->'+\
+                        ' <img src="/static/img/trash.png" name="delete_everything" id='+ str(data['note_id']) +' title="Видалити" />'+\
+                        '<span id="'+ str(data['note_id']) +'" name="delete_hide_form" style="display:none;">'+\
+                            '<abbr title="Видаляй" name="delete_yes">'+\
+                                '<img src="/static/img/accept.png"/>'+\
+                            '</abbr>'+\
+                            ' / '+\
+                            '<abbr title="Я передумав" name="delete_no">'+\
+                                '<img src="/static/img/cancel.png"/>'+\
+                            '</abbr>'+\
+                        '</span>'+\
+                '</small>'+\
+            '</td>'+\
+        '</tr>'+\
+    '</table>'+\
+    '<!-- тіло комента -->'+\
+    '<table class="posts" id="'+ str(data['note_id']) +'">'+\
+        '<td>'+\
+            '<pre>'+ data['note_text'] +'</pre>'+\
+            '<div name="hidden_change_post" id="'+ str(data['note_id']) + '" class="hidden_post" role="form">'+\
+                '<input id="visible_post_source" name="visible_post_source" type="checkbox" value="y">відображати пост усім <br>'+\
+                '<textarea cols="70" id="blog_text_source" name="blog_text_source" placeholder="Текст напишіть тут. Можливе використання тегів" rows="7"></textarea><br>'+\
+                '<input id="submit_source" name="submit_source" type="submit" value="Змінити">'+\
+            '</div>'+\
+        '</td>'+\
+    '</table>'
+
+    return note_block
+
+
+# -------------------------------------------------------------------------------------------------------------------- №
 if __name__ == '__main__':
     text = """фільтрувати текст
             "console",
@@ -106,3 +169,7 @@ if __name__ == '__main__':
             """
     print('|ORIGINAL|', text)
     print('|CHANGING|', filter(text))
+
+    data = {'note_id': 333, 'user_id': 666, 'user_name': 'USER', 'timestamp': '01.03.2017 14:21', 'note_text': 'some fucking text, bla bla bla', 'photo': 'http://www.some.com'}
+    print('||ORIGINAL||', data)
+    print('||HTML GEN||', generate_html_block_note(data))

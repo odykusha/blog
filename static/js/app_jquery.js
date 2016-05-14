@@ -283,68 +283,8 @@
             success: function(data){
                 if (data.status == 'OK') {
                     // відображаємо новий запис
-                    // формуємо html код
                     // запихаємо його в початок
-
-                    $('.entries').prepend(
-    '<!-- тіло комента -->'+
-    '<table class="post_head" id="'+ data.note_id +'">'+
-        '<li>'+
-
-           '<!-- видно всім -->'+
-            '<tr>'+
-                '<td class="left">'+
-                    '<small>'+
-                    '<div>'+
-                        '<a class="not_like_link_id" href="/view/'+ data.note_id +'"> ІД: '+ data.note_id +'</a>'+
-                    '</div>'+
-                    '</small>'+
-                '</td>'+
-            '<td class="right">'+
-                '<small>'+
-                        '<div class="visible" style="display: none;">видно всім</div>'+
-            '</small>'+
-        '</td>'+
-    '</tr>'+
-
-'<!-- автор запису -->'+
-            '<td class="left">'+
-                '<h2 class="post">'+
-                    '<a class="not_like_link_user" href="/users/'+ data.user_id + '"> '+ data.user_name +' </a>'+
-                    '<!-- соус поста -->'+
-                    '<img src="/static/img/edit.png" name="edit_this_post" id="'+ data.note_id +'" title="Редагувати"/>'+
-                '</h2>'+
-            '</td>'+
-
-            '<td class="right">'+
-                '<small>'+
-                        data.timestamp +
-                        ' <img src="/static/img/trash.png" name="delete_everything" id='+ data.note_id +' title="Видалити" />'+
-                        '<span id="'+ data.note_id +'" name="delete_hide_form" style="display:none;">'+
-                            '<abbr title="Видаляй" name="delete_yes">'+
-                                '<img src="/static/img/accept.png"/>'+
-                            '</abbr>'+
-                            ' / '+
-                            '<abbr title="Я передумав" name="delete_no">'+
-                                '<img src="/static/img/cancel.png"/>'+
-                            '</abbr>'+
-                        '</span>'+
-
-                '</small>'+
-            '</td>'+
-    '</table>'+
-
-    '<!-- тіло комента -->'+
-    '<table class="posts" id="'+ data.note_id +'">'+
-        '<td>'+
-            '<pre>'+ note_text +'</pre>'+
-            '<div name="hidden_change_post" id="'+ data.note_id + '" class="hidden_post" role="form">'+
-                '<input id="visible_post_source" name="visible_post_source" type="checkbox" value="y">відображати пост усім <br>'+
-                '<textarea cols="70" id="blog_text_source" name="blog_text_source" placeholder="Текст напишіть тут. Можливе використання тегів" rows="7"></textarea><br>'+
-                '<input id="submit_source" name="submit_source" type="submit" value="Змінити">'+
-            '</div>'+
-        '</td>'+
-    '</table>');
+                    $('.entries').prepend(data.created_html_block);
 
                     // відображення visible текста
                     if (note_visible == 'True')
