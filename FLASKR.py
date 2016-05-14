@@ -360,7 +360,7 @@ def ajax_delete_user():
 ###############################################################################
 # auth API Vk
 ###############################################################################
-import requests, json
+import requests, json, jwt
 
 
 # for VK
@@ -511,7 +511,37 @@ def get_access_token_gplus():
 
 
 def registration_gplus(access_dict):
-    return str(access_dict)
+    client_dict = jwt.decode(access_dict['id_token'], verify=False)
+
+    session['logged_user'] = True
+    session['user_name'] = client_dict.get('given_name') + ' ' + \
+                           client_dict.get('family_name')
+    session['photo'] = client_dict.get('picture')
+    auth_user_id = client_dict.get('sub')
+    client_portal = 'google.com'
+
+    db = get_db()
+    db.execute(sql_scripts.update_insert_user,
+               [auth_user_id,
+                auth_user_id,
+                client_portal,
+                session.get('user_name'),
+                session.get('photo'),
+                auth_user_id,
+                auth_user_id])
+    db.commit()
+
+    # add admin role
+    cur = db.execute(sql_scripts.get_user_head,
+                     [auth_user_id,
+                      client_portal]).fetchall()
+    for cr in cur:
+        session['user_id'] = cr['id']
+        if cr['is_admin']:
+            session['logged_admin'] = True
+        user_status = cr['status']
+
+    return redirect(url_for('show_notes', user_id=session.get('user_id')))
 
 
 ###############################################################################
