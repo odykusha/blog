@@ -375,6 +375,7 @@ CLIENT_SECRET_for_gplus = 'cVOM2T1TrnXgK3jkkVv_jOl7'
 REDIRECT_URI_for_gplus = 'https://odykusha.pythonanywhere.com/get_access_token_gplus'
 
 
+# VK
 @app.route('/auth_vk', methods=['GET'])
 def auth_vk():
     if session.get('logged_user'):
@@ -410,7 +411,6 @@ def get_access_token_vk():
         return get_access_token.content, request_status
 
     access_dict = json.loads(get_access_token.text)
-    print("|| access_dict ||", access_dict)
     registration_vk(access_dict)
 
 
@@ -425,11 +425,8 @@ def registration_vk(access_dict):
         return get_client_info.content, request_status
 
     client_dict = json.loads(get_client_info.text)
-
     if 'error' in client_dict:
         return client_dict, 401
-
-
 
     client_dict = client_dict.get('response')[0]
     session['logged_user'] = True
@@ -450,7 +447,6 @@ def registration_vk(access_dict):
                      auth_user_id])
     db.commit()
 
-
     # add admin role
     cur = db.execute(sql_scripts.get_user_head,
                      [auth_user_id,
@@ -464,7 +460,7 @@ def registration_vk(access_dict):
     return redirect(url_for('show_notes', user_id=session.get('user_id')))
 
 
-
+# Google+
 @app.route('/auth_gplus', methods=['GET'])
 def auth_gplus():
     if session.get('logged_user'):
@@ -505,9 +501,7 @@ def get_access_token_gplus():
         return get_access_token.content, request_status
 
     access_dict = json.loads(get_access_token.text)
-    print("|| access_dict ||", access_dict)
     return registration_gplus(access_dict)
-
 
 
 def registration_gplus(access_dict):
