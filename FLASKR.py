@@ -21,6 +21,7 @@ MAX_NOTES_ON_PAGE = 10
 # cache = Cache(app,config={'CACHE_TYPE': 'simple'})
 # tools = DebugToolbarExtension(app)
 app.config.from_object(__name__)
+app.root_path = os.path.dirname(os.path.abspath(__file__))
 app.register_blueprint(view_auth)
 app.register_blueprint(view_errors)
 app.register_blueprint(view_notes)
