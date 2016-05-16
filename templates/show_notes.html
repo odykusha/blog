@@ -46,7 +46,7 @@
                 <td class="left">
                     <small>
                     <div>
-                        <a class="not_like_link_id" href="{{ url_for('view_auth.show_notes', note_id=note.id) }}"> ІД: {{note.id}} </a>
+                        <a class="not_like_link_id" href="{{ url_for('view_notes.show_notes', note_id=note.id) }}"> ІД: {{note.id}} </a>
                     </div>
                     </small>
                 </td>
@@ -71,9 +71,9 @@
             <td class="left">
                 <h2 class="post">
                     {% if note.user_name %}
-                    <a class="not_like_link_user" href="{{ url_for('view_auth.show_notes', user_id=note.user_id) }}"> {{ note.user_name }} </a>
+                    <a class="not_like_link_user" href="{{ url_for('view_notes.show_notes', user_id=note.user_id) }}"> {{ note.user_name }} </a>
                     {% else %}
-                    <a class="not_like_link_user" href="{{ url_for('view_auth.show_notes', user_id=0) }}"> ~Видаленний~ </a>
+                    <a class="not_like_link_user" href="{{ url_for('view_notes.show_notes', user_id=0) }}"> ~Видаленний~ </a>
                     {% endif %}
 
                     {% if session.logged_admin or session.user_id == note.user_id %}
@@ -129,11 +129,11 @@
 <table class="post_head">
     <tr>
     {% if paginator.url_page > 0 %}
-    <td class="left">  <a href="{{ url_for('view_auth.show_notes', page=paginator.url_page - 1, user_id=paginator.url_user_id) }}" > Попередні </a> </td>
+    <td class="left">  <a href="{{ url_for('view_notes.show_notes', page=paginator.url_page - 1, user_id=paginator.url_user_id) }}" > Попередні </a> </td>
     {% endif %}
 
     {% if notes|length == 10 %}
-    <td class="right"> <a href="{{ url_for('view_auth.show_notes', page=paginator.url_page + 1, user_id=paginator.url_user_id) }}" > Наступні </a> </td>
+    <td class="right"> <a href="{{ url_for('view_notes.show_notes', page=paginator.url_page + 1, user_id=paginator.url_user_id) }}" > Наступні </a> </td>
     {% endif %}
     </tr>
 </table>

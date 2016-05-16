@@ -17,10 +17,10 @@
     <table class="head">
         <td>
             <li><a id="user_list_button"> ||| </a></li>
-            <li><a href="{{ url_for('view_auth.show_notes') }}"> Загальний </a></li>
+            <li><a href="{{ url_for('view_notes.show_notes') }}"> Загальний </a></li>
 
         {% if session.logged_user %}
-            <li><a href="{{ url_for('view_auth.show_notes', user_id=session.get('user_id')) }}" style="padding: 0px">
+            <li><a href="{{ url_for('view_notes.show_notes', user_id=session.get('user_id')) }}" style="padding: 0px">
                 <div class="green_button" style="padding: 6px 16px">
                     Мої записи
                     <img src="{{session.get('photo')}}" class="vk_image"/>
@@ -37,13 +37,13 @@
 
         {% if session.logged_admin %}
             <td>
-                <li style="float:right"><a class="green_button" href="{{ url_for('view_auth.show_users') }}"> юзери </a></li>
+                <li style="float:right"><a class="green_button" href="{{ url_for('view_notes.show_users') }}"> юзери </a></li>
             </td>
         {% endif %}
 
         {% if session.logged_user %}
             <td class="head">
-                <li style="float:right"><a class="green_button" href="{{ url_for('view_auth.logout') }} "> вийти </a></li>
+                <li style="float:right"><a class="green_button" href="{{ url_for('view_notes.logout') }} "> вийти </a></li>
             </td>
         {% endif %}
 
@@ -63,9 +63,9 @@
 <div id="user_list"> <!-- style="display:none" -->
         Виберіть користувача:<br>
     {% for user in users %}
-        <a href="{{ url_for('view_auth.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a> <br>
+        <a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a> <br>
     {% endfor %}
-        <a href="{{ url_for('view_auth.show_notes', user_id = 0) }}"> <u> Видаленні </u></a><br>
+        <a href="{{ url_for('view_notes.show_notes', user_id = 0) }}"> <u> Видаленні </u></a><br>
 </div>
 
 
