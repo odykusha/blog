@@ -159,7 +159,8 @@ def ajax_create_note():
                              'note_text': note_text,
                              'photo'    : session['photo']}
         return jsonify(status='OK', message='Додано запис, ІД:' + str(dict_for_html_gen['note_id']),
-                       created_html_block = note_filter.generate_html_block_note(dict_for_html_gen))
+                       created_html_block = note_filter.generate_html_block_note(dict_for_html_gen),
+                       note_id=dict_for_html_gen['note_id'])
     return jsonify(status='ERR', message='щось пішло не так')
 
 
