@@ -89,6 +89,7 @@ get_all_users = """
     select *
     from users
     order by id desc
+    LIMIT (?),(?)
     """
 
 get_user = """

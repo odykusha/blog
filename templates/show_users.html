@@ -7,29 +7,32 @@
 <h2>Управління користувачами</h2>
 
 
+<!-- шапка юзерів -->
 {% if users %}
 <table class="users">
-
     <tr>
-        <th> id </th>
+        <th> ід </th>
+        <th> фото </th>
+        <th> ім'я </th>
+        {% if session.logged_admin %}
         <th> client_id </th>
         <th> portal </th>
-        <th> user_name </th>
-        <th> photo </th>
         <th> status </th>
         <th> is_admin </th>
-        <th> дія </th>
+        <th> видалити </th>
+        {% endif %}
     </tr>
-    {% endif %}
+{% endif %}
 
     {% for user in users %}
 
     <tr id="{{ user.id }}">
         <td> {{ user.id }}</td>
+        <td> <a href ="{{ user.photo }}"> <img src="{{ user.photo }}" class="vk_image"/> </a></td>
+        <td> <a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a></td>
+        {% if session.logged_admin %}
         <td> {{ user.client_id }}</td>
         <td> {{ user.portal }}</td>
-        <td> {{ user.user_name }}</td>
-        <td> <a href="{{ user.photo }}"/> {{ user.photo }} </td>
         <td> {{ user.status }}</td>
         <td> {{ user.is_admin }}</td>
 
@@ -47,11 +50,27 @@
                 </abbr>
             </span>
         </td>
+        {% endif %}
     </tr>
-
     {% else %}
-</table>
+
 <li><em>Неймовірно. Жодно логіну!</em>
     {% endfor %}
+
+</table>
+
+
+<!-- Пагінатор -->
+<table class="post_head">
+    <tr>
+    {% if paginator.url_page > 0 %}
+    <td class="left">  <a href="{{ url_for('view_notes.show_users', page=paginator.url_page - 1) }}" > Попередні </a> </td>
+    {% endif %}
+
+    {% if users|length == 20 %}
+    <td class="right"> <a href="{{ url_for('view_notes.show_users', page=paginator.url_page + 1) }}" > Наступні </a> </td>
+    {% endif %}
+    </tr>
+</table>
 
     {% endblock %}

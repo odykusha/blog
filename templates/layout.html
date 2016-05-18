@@ -35,11 +35,9 @@
         {% endif %}
         </td>
 
-        {% if session.logged_admin %}
             <td>
                 <li style="float:right"><a class="green_button" href="{{ url_for('view_notes.show_users') }}"> юзери </a></li>
             </td>
-        {% endif %}
 
         {% if session.logged_user %}
             <td class="head">
@@ -48,7 +46,7 @@
         {% endif %}
 
         {% if not session.logged_user %}
-            <td>
+            <td class="head">
                 <li style="float:right"><div class="green_button" id="auth_button"> зайти </div></li>
             </td>
         {% endif %}
@@ -85,7 +83,7 @@
 <!-- auth google.com -->
 <td>
 <div class="left">
-    <a href="{{ url_for('view_auth.auth_gplus') }}" title="скоро буде, сподіваюсь">
+    <a href="{{ url_for('view_auth.auth_gplus') }}">
       <img src="{{ url_for('static', filename='img/gplus.png') }}" />
     </a>
 </div></td>

@@ -29,7 +29,7 @@ def auth_vk():
     if session.get('logged_user'):
         return redirect(url_for('view_notes.show_notes'))
     # on local
-    visual_res = {"access_token":"7c810a56977440563d122bd8f9a4f17c5b11ce95e56658f87a657b8860a586b68b7977a1f57dd2926eda6","expires_in":86387,"user_id":137375300}
+    visual_res = {"access_token":"c1fd31600449564067d750f2697b28c74ca84d3aead20702dffb287581de59daa71a72c6b3f142c0807c2","expires_in":86387,"user_id":137375300}
     return registration_vk(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',

@@ -17,6 +17,7 @@ CSRF_ENABLED = True
 HOST = '0.0.0.0'
 PORT = 8080
 MAX_NOTES_ON_PAGE = 10
+MAX_USERS_ON_PAGE = 20
 
 # cache = Cache(app,config={'CACHE_TYPE': 'simple'})
 # tools = DebugToolbarExtension(app)

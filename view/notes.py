@@ -22,7 +22,7 @@ def logging(user_admin_session):
         @functools.wraps(func)
         def wrappers(*args, **kwargs):
             if not session.get(user_admin_session):
-                return redirect(url_for('view_notes.login'))
+                return redirect(url_for('view_notes.show_notes'))
             return func(*args, **kwargs)
         return wrappers
     return decor
@@ -59,6 +59,7 @@ def show_notes(user_id=None, note_id=None):
                            [PAGE * app.config['MAX_NOTES_ON_PAGE'],
                             app.config['MAX_NOTES_ON_PAGE']]).fetchall()
         blog_form_visible = True
+        print('user:0')
     # записи одного користувача
     elif user_id:
         notes = db.execute(sql_scripts.get_user_notes,
@@ -85,10 +86,11 @@ def show_notes(user_id=None, note_id=None):
             pass
 
     # user list
-    cur = db.execute(sql_scripts.get_all_users)
-    users = cur.fetchall()
+    one_user = db.execute(sql_scripts.get_user,
+                          [user_id]).fetchall()
+
     view_user = {}
-    for i in users:
+    for i in one_user:
         if i['id'] == user_id:
             view_user['user_name'] = i['user_name']
             view_user['user_id']   = i['id']
@@ -98,17 +100,26 @@ def show_notes(user_id=None, note_id=None):
                            view_user=view_user,
                            notes=notes,
                            form=form,
-                           users=users,
+                           #users=users,
                            paginator=paginator)
 
 
 @view_notes.route('/users/view/', methods=['GET'])
-@logging('logged_admin')
+#@logging('logged_user')
 def show_users():
+    PAGE = request.args.get('page', 0, type=int)
+
+    if '?page=' in request.url:
+        paginator = {'url_page': int(request.url.split('page=')[1])}
+    else:
+        paginator = {'url_page': 0}
+
     db = get_db()
-    cur = db.execute(sql_scripts.get_all_users)
-    users = cur.fetchall()
-    return render_template('show_users.html', users=users)
+    users = db.execute(sql_scripts.get_all_users,
+                     [PAGE * app.config['MAX_USERS_ON_PAGE'],
+                            app.config['MAX_USERS_ON_PAGE']]).fetchall()
+
+    return render_template('show_users.html', users=users, paginator=paginator)
 
 
 # @app.route('/static/<filename>')
