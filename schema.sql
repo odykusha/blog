@@ -18,5 +18,5 @@ create table users (
  is_admin integer not null default 0
 );
 
---insert into users (id, user_name, password) values (0, 'admin', 'passwd');
---insert into users (user_name, password) values ('oleg', 'qaz');
+insert into users (id, client_id, portal, user_name, photo)
+VALUES (0, 'null', 'null','Видаленні','http://new.vk.com/images/deactivated_50.png');
