@@ -1,10 +1,5 @@
  var main = function(){
 // ------------------------------------------------------------------- //
-// вікно із списком користувачів
-    $("#user_list_button").click(function(){
-        $("#user_list").toggle("Puff");
-    });
-
 // вікно авторизування кристувачів
     $("#auth_button").click(function(){
         $("#auth_form").toggle("Puff");

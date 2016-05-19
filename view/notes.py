@@ -46,12 +46,8 @@ def show_notes(user_id=None, note_id=None):
     form = BlogForm()
     db = get_db()
 
-    if '?page=' in request.url:
-        paginator = {'url_page': int(request.url.split('page=')[1]),
-                     'url_user_id': user_id}
-    else:
-        paginator = {'url_page': 0,
-                     'url_user_id': user_id}
+    paginator = {'url_page': PAGE,
+                 'url_user_id': user_id}
 
     # записи видаленого користувача
     if user_id == 0:
@@ -59,7 +55,6 @@ def show_notes(user_id=None, note_id=None):
                            [PAGE * app.config['MAX_NOTES_ON_PAGE'],
                             app.config['MAX_NOTES_ON_PAGE']]).fetchall()
         blog_form_visible = True
-        print('user:0')
     # записи одного користувача
     elif user_id:
         notes = db.execute(sql_scripts.get_user_notes,
@@ -88,7 +83,6 @@ def show_notes(user_id=None, note_id=None):
     # user list
     one_user = db.execute(sql_scripts.get_user,
                           [user_id]).fetchall()
-
     view_user = {}
     for i in one_user:
         if i['id'] == user_id:
@@ -100,7 +94,6 @@ def show_notes(user_id=None, note_id=None):
                            view_user=view_user,
                            notes=notes,
                            form=form,
-                           #users=users,
                            paginator=paginator)
 
 
@@ -108,16 +101,12 @@ def show_notes(user_id=None, note_id=None):
 #@logging('logged_user')
 def show_users():
     PAGE = request.args.get('page', 0, type=int)
-
-    if '?page=' in request.url:
-        paginator = {'url_page': int(request.url.split('page=')[1])}
-    else:
-        paginator = {'url_page': 0}
+    paginator = {'url_page': PAGE}
 
     db = get_db()
     users = db.execute(sql_scripts.get_all_users,
                      [PAGE * app.config['MAX_USERS_ON_PAGE'],
-                            app.config['MAX_USERS_ON_PAGE']]).fetchall()
+                      app.config['MAX_USERS_ON_PAGE']]).fetchall()
 
     return render_template('show_users.html', users=users, paginator=paginator)
 

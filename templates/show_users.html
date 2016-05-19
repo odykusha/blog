@@ -14,6 +14,8 @@
         <th> ід </th>
         <th> фото </th>
         <th> ім'я </th>
+        <td> всього записів </td>
+        <td> видних записів </td>
         {% if session.logged_admin %}
         <th> client_id </th>
         <th> portal </th>
@@ -30,6 +32,8 @@
         <td> {{ user.id }}</td>
         <td> <a href ="{{ user.photo }}"> <img src="{{ user.photo }}" class="vk_image"/> </a></td>
         <td> <a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a></td>
+        <td> {{ user.count_all_notes }}</td>
+        <td> {{ user.count_visible_notes }}</td>
         {% if session.logged_admin %}
         <td> {{ user.client_id }}</td>
         <td> {{ user.portal }}</td>
@@ -51,6 +55,7 @@
             </span>
         </td>
         {% endif %}
+
     </tr>
     {% else %}
 

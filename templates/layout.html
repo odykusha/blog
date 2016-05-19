@@ -16,7 +16,7 @@
 <ul class="head">
     <table class="head">
         <td>
-            <li><a id="user_list_button"> ||| </a></li>
+            <li><a> ||| </a></li>
             <li><a href="{{ url_for('view_notes.show_notes') }}"> Загальний </a></li>
 
         {% if session.logged_user %}
@@ -56,15 +56,6 @@
 </header>
 
 <br><br>
-
-<!-- вікно з юзерами -->
-<div id="user_list"> <!-- style="display:none" -->
-        Виберіть користувача:<br>
-    {% for user in users %}
-        <a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a> <br>
-    {% endfor %}
-        <a href="{{ url_for('view_notes.show_notes', user_id = 0) }}"> <u> Видаленні </u></a><br>
-</div>
 
 
 <!-- вікно авторизації -->

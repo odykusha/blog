@@ -73,21 +73,6 @@ header {
  *  JQUERY
  */
 
-#user_list {
-    display: none;
-    font-family: Tahoma,Arial sans-serif;
-   	border-radius: 5px;
-	border: 2px solid #BFBFBD;
-	background-color: #E8E8E5;
-	text-align: center;
-	font-family: Garamond, serif;
-	width: 180px;
-	float: left;
-    margin: 20px;
-    position: fixed;
-}
-
-
 #auth_form {
     display: none;
     font-family: Tahoma,Arial sans-serif;

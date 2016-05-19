@@ -86,9 +86,13 @@ update_insert_user = """
     """
 
 get_all_users = """
-    select *
-    from users
-    order by id desc
+    select us.id, us.client_id, us.portal, us.user_name, us.photo, us.status, us.is_admin,
+           count(nt.id) as count_all_notes,
+           sum((case when nt.global_visible = 1 then 1 else 0 end)) as count_visible_notes
+    from users us
+    LEFT OUTER JOIN notes nt ON us.id = nt.user_id
+    group by us.id, us.client_id, us.portal, us.user_name, us.photo, us.status, us.is_admin
+    order by us.id desc
     LIMIT (?),(?)
     """
 

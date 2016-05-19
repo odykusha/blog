@@ -22,7 +22,7 @@ def connect_db():
 db = connect_db()
 
 print('start')
-for i in range(100, 201):
+for i in range(100, 151):
     db.execute('insert into users (client_id, portal, user_name, photo) values (?, ?, ?, ?)',
                ['clientID_'+str(i),
                 'portal_'+str(i),
