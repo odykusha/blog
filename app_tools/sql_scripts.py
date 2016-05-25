@@ -75,6 +75,7 @@ del_note = """
     where id = (?)
     """
 
+
 # users ---------------------------------------
 update_insert_user = """
     INSERT OR REPLACE INTO users (id, client_id, portal, user_name, photo, status, is_admin)
@@ -111,5 +112,12 @@ get_user_head = """
 
 del_user = """
     delete from users
+    where id = (?)
+    """
+
+change_user_role = """
+    update users
+    set status = (?),
+      is_admin = (?)
     where id = (?)
     """

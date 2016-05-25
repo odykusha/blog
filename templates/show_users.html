@@ -29,16 +29,16 @@
     {% for user in users %}
 
     <tr id="{{ user.id }}">
-        <td> {{ user.id }}</td>
-        <td> <a href ="{{ user.photo }}"> <img src="{{ user.photo }}" class="vk_image"/> </a></td>
-        <td> <a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a></td>
-        <td> {{ user.count_all_notes }}</td>
-        <td> {{ user.count_visible_notes }}</td>
+        <td>{{ user.id }}</td>
+        <td><a href ="{{ user.photo }}"> <img src="{{ user.photo }}" class="vk_image"/> </a></td>
+        <td><a href="{{ url_for('view_notes.show_notes', user_id = user.id) }}"> {{ user.user_name }} </a></td>
+        <td>{{ user.count_all_notes }}</td>
+        <td>{{ user.count_visible_notes }}</td>
         {% if session.logged_admin %}
-        <td> {{ user.client_id }}</td>
-        <td> {{ user.portal }}</td>
-        <td> {{ user.status }}</td>
-        <td> {{ user.is_admin }}</td>
+        <td>{{ user.client_id }}</td>
+        <td>{{ user.portal }}</td>
+        <td name="status">  <div id="{{ user.status }}">{{ user.status }}</div></td>
+        <td name="is_admin"><div id="{{ user.is_admin }}">{{ user.is_admin }}</div></td>
 
         <!-- блок видалення юзера -->
         <td>

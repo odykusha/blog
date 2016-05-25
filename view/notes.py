@@ -259,3 +259,23 @@ def ajax_delete_user():
         return jsonify(status='OK', message='Видалено користувача, ІД:' + user_id)
 
     return jsonify(status='ERR', message='спочатку потрібно авторизуватись')
+
+
+@view_notes.route('/ajax_change_user', methods=['POST'])
+def ajax_change_user():
+    user_id               = request.form['user_id']
+    active_status_checked = request.form['active_status_checked']
+    admin_status_checked  = request.form['admin_status_checked']
+    db = get_db()
+
+    if session.get('logged_admin'):
+        db.execute(sql_scripts.change_user_role, [active_status_checked,
+                                                  admin_status_checked,
+                                                  user_id])
+        try:
+            db.commit()
+        except sqlite3.OperationalError:
+            return jsonify(status='ERR', message='якесь гівно блочить базу')
+        return jsonify(status='OK', message='Змінено права користувачу, ІД:' + user_id)
+
+    return jsonify(status='ERR', message='спочатку потрібно авторизуватись')
