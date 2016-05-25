@@ -41,7 +41,7 @@
 
         {% if session.logged_user %}
             <td class="head">
-                <li style="float:right"><a class="green_button" href="{{ url_for('view_notes.logout') }} "> вийти </a></li>
+                <li style="float:right"><a class="green_button" href="{{ url_for('view_auth.logout') }} "> вийти </a></li>
             </td>
         {% endif %}
 

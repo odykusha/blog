@@ -1,8 +1,8 @@
  var main = function(){
 // ------------------------------------------------------------------- //
 // ініціалізація чекбоксів
-$('<input type="checkbox" checked>').replaceAll('div[id="1"]')
-$('<input type="checkbox">').replaceAll('div[id="0"]')
+$('<input name="change_role" type="checkbox" checked>').replaceAll('div[id="1"]')
+$('<input name="change_role" type="checkbox">').replaceAll('div[id="0"]')
 //
 
 // ------------------------------------------------------------------- //
@@ -41,7 +41,7 @@ $('<input type="checkbox">').replaceAll('div[id="0"]')
 
 // ------------------------------------------------------------------- //
 // AJAX зміна прав користувача
-    $('input[type="checkbox"]').click(function() {
+    $('input[name="change_role"]').click(function() {
         var user_id = $(this).parent().parent().attr("id");
         // значення чекбокса статуса
         if($('tr[id="' + user_id + '"]').find('td[name="status"]').find('input').is(':checked')) {

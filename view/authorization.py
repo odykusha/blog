@@ -195,3 +195,14 @@ def registration_gplus(access_dict):
             abort(403)
 
     return redirect(url_for('view_notes.show_notes', user_id=session.get('user_id')))
+
+
+###############################################################################
+@view_auth.route('/logout', methods=['GET'])
+def logout():
+    session.pop('logged_user', None)
+    session.pop('logged_admin', None)
+    session.pop('user_name', None)
+    session.pop('user_id', None)
+    session.pop('photo', None)
+    return redirect(url_for('view_notes.show_notes'))

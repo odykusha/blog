@@ -28,16 +28,6 @@ def logging(user_admin_session):
     return decor
 
 
-@view_notes.route('/logout', methods=['GET'])
-def logout():
-    session.pop('logged_user', None)
-    session.pop('logged_admin', None)
-    session.pop('user_name', None)
-    session.pop('user_id', None)
-    session.pop('photo', None)
-    return redirect(url_for('view_notes.show_notes'))
-
-
 @view_notes.route('/', methods=['GET'])
 @view_notes.route('/view/<int:note_id>', methods=["GET"])
 @view_notes.route('/users/<int:user_id>', methods=['GET'])
