@@ -1,6 +1,6 @@
 import requests, json, jwt
 
-from flask import session, redirect, url_for, request, Blueprint
+from flask import session, redirect, url_for, request, Blueprint, abort
 
 from view.db_utils import get_db
 from app_tools import sql_scripts
@@ -77,7 +77,6 @@ def registration_vk(access_dict):
         return client_dict, 401
 
     client_dict = client_dict.get('response')[0]
-    session['logged_user'] = True
     session['user_name'] = client_dict.get('first_name') + ' ' + \
                            client_dict.get('last_name')
     session['photo'] = client_dict.get('photo')
@@ -100,10 +99,15 @@ def registration_vk(access_dict):
                      [auth_user_id,
                       client_portal]).fetchall()
     for cr in cur:
-        session['user_id'] = cr['id']
-        if cr['is_admin']:
-            session['logged_admin'] = True
-        user_status = cr['status']
+        if cr['status']:
+            session['logged_user'] = True
+            session['user_id'] = cr['id']
+            if cr['is_admin']:
+                session['logged_admin'] = True
+        else:
+            session.pop('photo', None)
+            session.pop('user_name', None)
+            abort(403)
 
     return redirect(url_for('view_notes.show_notes', user_id=session.get('user_id')))
 
@@ -158,7 +162,6 @@ def get_access_token_gplus():
 def registration_gplus(access_dict):
     client_dict = jwt.decode(access_dict['id_token'], verify=False)
 
-    session['logged_user'] = True
     session['user_name'] = client_dict.get('given_name') + ' ' + \
                            client_dict.get('family_name')
     session['photo'] = client_dict.get('picture')
@@ -181,9 +184,14 @@ def registration_gplus(access_dict):
                      [auth_user_id,
                       client_portal]).fetchall()
     for cr in cur:
-        session['user_id'] = cr['id']
-        if cr['is_admin']:
-            session['logged_admin'] = True
-        user_status = cr['status']
+        if cr['status']:
+            session['logged_user'] = True
+            session['user_id'] = cr['id']
+            if cr['is_admin']:
+                session['logged_admin'] = True
+        else:
+            session.pop('photo', None)
+            session.pop('user_name', None)
+            abort(403)
 
     return redirect(url_for('view_notes.show_notes', user_id=session.get('user_id')))
