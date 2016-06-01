@@ -8,7 +8,7 @@ from wtforms import SubmitField, \
 ###############################################################################
 class BlogForm(Form):
     blog_text = TextAreaField("text",
-        [validators.Length(max=3, message='цей грьобаний текст ніколи не відобразиться')])
+        validators=[validators.Length(min=3, message='цей грьобаний текст ніколи не відобразиться')])
     visible_post = BooleanField("Видний усім")
     submit = SubmitField('Добавити')
 

@@ -77,6 +77,7 @@ del_note = """
 
 
 # users ---------------------------------------
+# добавить крім ІД клієнта, ще і "портал"
 update_insert_user = """
     INSERT OR REPLACE INTO users (id, client_id, portal, user_name, photo, status, is_admin)
     VALUES (  COALESCE((SELECT id FROM users WHERE client_id = (?)), null),
