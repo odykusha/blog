@@ -3,34 +3,47 @@
 <head>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-    <script type=text/javascript src="{{ url_for('static', filename='functions.js') }}"></script>
-    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <!--<script type=text/javascript src="{{ url_for('static', filename='functions.js') }}"></script>-->
+    <!--<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>-->
 </head>
 
-<div class=page>
-    <h1 class="post">
-        <a class="post" href="{{ url_for('show_notes') }} "> Блог </a>
-    </h1>
 
-
-    <div class=metanav>
+<header>
+<ul class="head">
+    <table class="head">
+        <td>
+            <li><a href="{{ url_for('show_notes') }}"> Блог </a></li>
         {% if session.logged_user %}
-        ви зайшли як: {{ session.user_name }},
+            <li><a href="{{ url_for('user_notes', user_name=session.get('user_name')) }}"> Мій блог </a></li>
+            <li><div class="active"> ви зайшли як: {{ session.user_name }} </div></li>
+        </td>
+
         {% if session.logged_admin %}
-        <a class="post" href="{{ url_for('show_users') }}">юзери</a>
+        <td>
+            <li style="float:right"><a class="active" href="{{ url_for('show_users') }}"> юзери </a></li>
+        </td>
+
         {% endif %}
-        <a class="post" href="{{ url_for('logout') }} ">вийти</a>
+        <td class="head">
+            <li style="float:right"><a class="active" href="{{ url_for('logout') }} "> вийти </a></li>
+        </td>
 
         {% else %}
-        <a class="post" href="{{ url_for('login') }} ">зайти</a>
+        <td>
+            <li style="float:right"><a class="active" href="{{ url_for('login') }} "> зайти </a></li>
+        </td>
         {% endif %}
-    </div>
+
+    </table>
+</ul>
+</header>
 
 
+
+<div class=page>
     {% for message in get_flashed_messages() %}
     <div class=flash>{{ message }}</div>
     {% endfor %}
-
 
     {% block body %} {% endblock %}
 </div>

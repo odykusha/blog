@@ -4,7 +4,7 @@ import functools
 import sqlite3
 
 from flask import Flask, session, g, redirect, url_for, render_template, flash, \
-                  request
+                  request, abort
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, \
                     validators, TextAreaField
@@ -62,7 +62,6 @@ class BlogForm(Form):
     blog_text = TextAreaField("text",
         [validators.Length(max=3, message='чому ти сука не працюєш')])
 
-    del_submit = SubmitField('Delete buster!')
     submit = SubmitField('Добавити')
 
 
@@ -166,6 +165,9 @@ def logging(user_admin_session):
 
 @app.route('/login/', methods=['POST', 'GET'])
 def login():
+    if session.get('logged_user'):
+        return redirect(url_for('show_notes'))
+
     error = None
     db_login = None
     db_pass = None
@@ -182,7 +184,7 @@ def login():
             db_pass  = c['password']
 
         if not login_in_db(form.auth_login.data):
-            error = ('Логін не знайдено')
+            error = 'Логін не знайдено'
 
         elif form.auth_password.data != db_pass:
             error = 'Невірний пароль'
@@ -205,13 +207,26 @@ def logout():
 
 
 @app.route('/', methods=['GET'])
-@logging('logged_user')
+#@logging('logged_user')
 def show_notes():
     db = get_db()
     form = BlogForm()
     cur = db.execute(sql_scripts.get_all_notes)
     notes = cur.fetchall()
     return render_template('show_notes.html', notes=notes, form=form)
+
+
+@app.route('/users/<user_name>', methods=['GET'])
+@logging('logged_user')
+def user_notes(user_name):
+    if session.get('user_name') == user_name or session.get('logged_admin'):
+        db = get_db()
+        form = BlogForm()
+        cur = db.execute(sql_scripts.get_user_notes, [user_name])
+        notes = cur.fetchall()
+        return render_template('show_notes.html', notes=notes, form=form)
+    else:
+        abort(403)
 
 
 @app.route('/notes_source/<note_id>', methods=['GET'])
@@ -258,19 +273,8 @@ def del_note(note_id):
     return redirect(url_for('show_notes'))
 
 
-@app.route('/users/<user_name>', methods=['GET'])
-@logging('logged_user')
-def user_note(user_name):
-    db = get_db()
-    form = BlogForm()
-    cur = db.execute(sql_scripts.get_user_notes, [user_name])
-    notes = cur.fetchall()
-    return render_template('show_notes.html', notes=notes, form=form)
-
-
 @app.route('/users/view/', methods=['GET'])
 @logging('logged_admin')
-#@cache.cached(timeout=50)
 def show_users(form=None):
     db = get_db()
     if not form:
@@ -318,9 +322,19 @@ def del_users(us_id):
 ###############################################################################
 # error
 ###############################################################################
+@app.errorhandler(403)
+def err403(error):
+    return "У вас немає прав для перегляду постів інших користувачів!<br> %s" % error, 403
+
+
 @app.errorhandler(404)
 def err404(error):
-    return "Шукаєш те, чого нема!<br> %s" % error
+    return "Шукаєш те, чого немає!<br> %s" % error, 404
+
+
+@app.errorhandler(405)
+def err405(error):
+    return "Такий метод не підтримується!<br> %s" % error, 405
 
 
 ###############################################################################
