@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}
+Список користувачів
+{% endblock %}
+{% block body %}
+
+<h2>Рандомайзер</h2>
+
+<table>
+    <tr>
+        {% for subfield in form.select_role %}
+        <td>{{ subfield }} {{ subfield.label }}</td>
+            {% endfor %}
+        {{ form.go_rand }}
+    </tr>
+
+    <tr>
+        <th> {{ form.first_text(rows=7, cols=70, placeholder="Список уподобань") }} </th>
+        <th> {{ form.second_text(rows=7, cols=70, placeholder="Список уподобань") }} </th>
+        <th> {{ form.other_text(rows=7, cols=70, placeholder="Список уподобань") }} </th>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td></td>
+        <td align="right">{{ form.save }}</td>
+    </tr>
+</table>
+
+
+<div id="rand_result"></div>
+
+{% endblock %}

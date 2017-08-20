@@ -388,6 +388,110 @@ $('<input name="change_role" type="checkbox">').replaceAll('div[id="0"]')
     });
 
 // ------------------------------------------------------------------- //
+// ajax запит на збереження rand форм
+$("#save").click(function() {
+        var first_text = $("#first_text").val();
+        var second_text = $("#second_text").val();
+        var other_text = $("#other_text").val();
+
+        // приховуємо дефолтне flash вікно
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
+
+        $.ajax({
+            url: '/rand/save',
+            data: {
+                first_text,
+                second_text,
+                other_text
+                },
+            type: 'POST',
+            success: function(data){
+                if (data.status == 'OK') {
+                    // показуємо повідомлення про успішність видалення запису
+                    $('.message_ok').show('blind');
+                    $('.message_ok').text(data.message);
+                    console.log('|AJAX|rand_save|OK|збережено');
+                    }
+
+                if (data.status == 'ERR') {
+                    // відображаємо повідомлення з помилкою
+                    $('.message_error').show('blind');
+                    $('.message_error').text(data.message);
+                    console.log('|AJAX|rand_save|ERROR||', data.message);
+                    }
+                },
+
+            error: function(error) {
+                $('.message_error').show('blind');
+                $('.message_error').text('шось зовсім пішло не так :(((');
+                console.log("|AJAX|rand_save|ERROR|шось зовсім пішло не так :(((", errorThrown);
+                }
+        });
+    });
+
+// ------------------------------------------------------------------- //
+// ajax запит на відпрацювання rand
+$("#go_rand").click(function() {
+        var first_text = $("#first_text").val();
+        var second_text = $("#second_text").val();
+        var other_text = $("#other_text").val();
+        var selected_first = $("#select_role-0").is(':checked');
+        var selected_second = $("#select_role-1").is(':checked');
+        var selected_other = $("#select_role-2").is(':checked');
+        // приховуємо дефолтне flash вікно
+        var flash = $('.flash').attr('style');
+        if (flash == 'display: block;') {
+            $('.flash').hide('blind'); }
+        var flash = $('.message_ok').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_ok').hide('blind'); }
+        var flash = $('.message_error').attr('style');
+        if (flash == 'display: block;') {
+            $('.message_error').hide('blind'); }
+
+        $.ajax({
+            url: '/rand/get',
+            data: {
+                first_text,
+                second_text,
+                other_text,
+                selected_first,
+                selected_second,
+                selected_other
+                },
+            type: 'POST',
+            success: function(data){
+                if (data.status == 'OK') {
+                    // показуємо повідомлення про успішність видалення запису
+                    $('#rand_result').text(data.message);
+                    console.log('|AJAX|rand_get|OK|Запит оброблено');
+                    }
+
+                if (data.status == 'ERR') {
+                    // відображаємо повідомлення з помилкою
+                    $('.message_error').show('blind');
+                    $('.message_error').text(data.message);
+                    console.log('|AJAX|rand_save|ERROR||', data.message);
+                    }
+                },
+
+            error: function(error) {
+                $('.message_error').show('blind');
+                $('.message_error').text('шось зовсім пішло не так :(((');
+                console.log("|AJAX|rand_save|ERROR|шось зовсім пішло не так :(((", errorThrown);
+                }
+        });
+    });
+
+// ------------------------------------------------------------------- //
 }
 
 // ------------------------------------------------------------------- //

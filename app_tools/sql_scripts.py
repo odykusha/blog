@@ -116,6 +116,19 @@ del_user = """
     where id = (?)
     """
 
+get_rand = """
+    select first, second, other
+    from rand
+    """
+
+change_rand = """
+    update rand
+    set first = (?),
+    second = (?),
+    other = (?)
+    where id = 0
+    """
+
 change_user_role = """
     update users
     set status = (?),

@@ -20,3 +20,15 @@ create table users (
 
 insert into users (id, client_id, portal, user_name, photo)
 VALUES (0, 'null', 'null','Видаленні','http://new.vk.com/images/deactivated_50.png');
+
+
+drop table if exists rand;
+create table rand (
+ id integer primary key autoincrement,
+ first text,
+ second text,
+ other text
+);
+
+insert into rand (id, first, second, other)
+values (0, 'first values', 'second values', 'other values');

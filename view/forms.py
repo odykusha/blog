@@ -1,6 +1,7 @@
 from flask.ext.wtf import Form
-from wtforms import SubmitField, \
-                    validators, TextAreaField, BooleanField
+from wtforms import (
+    SubmitField, validators, TextAreaField, BooleanField, RadioField
+)
 
 
 ###############################################################################
@@ -15,3 +16,13 @@ class BlogForm(Form):
     blog_text_source = TextAreaField("text")
     visible_post_source = BooleanField("Видний усім")
     submit_source = SubmitField('Змінити')
+
+
+class RandForm(Form):
+    select_role = RadioField(
+        choices=[('first', 'first'), ('second', 'second'), ('other', 'other')], default='other')
+    first_text = TextAreaField("text")
+    second_text = TextAreaField("text")
+    other_text = TextAreaField("text")
+    save = SubmitField("Зберегти")
+    go_rand = SubmitField("Поїхали")

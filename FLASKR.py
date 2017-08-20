@@ -4,6 +4,7 @@ from view import app
 from view.authorization import view_auth
 from view.errors import view_errors
 from view.notes import view_notes
+from view.randomizer import view_rand
 
 
 ###############################################################################
@@ -26,6 +27,7 @@ app.root_path = os.path.dirname(os.path.abspath(__file__))
 app.register_blueprint(view_auth)
 app.register_blueprint(view_errors)
 app.register_blueprint(view_notes)
+app.register_blueprint(view_rand)
 
 
 ###############################################################################
