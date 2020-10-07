@@ -132,7 +132,7 @@ def auth_gplus():
     outh2_url = (
         'https://accounts.google.com/o/oauth2/v2/auth?'
         'response_type=code&'
-        'client_id={client_id}'
+        'client_id={client_id}&'
         'scope=openid%20email%20profile&'
         'redirect_uri={redirect_uri}'.format(
             client_id=CLIENT_ID_for_gplus,
@@ -140,18 +140,6 @@ def auth_gplus():
         )
     )
     return redirect(outh2_url)
-    # get_user_code = requests.get(url='https://accounts.google.com/o/oauth2/auth',
-    #                              params={'client_id': CLIENT_ID_for_gplus,
-    #                                      'redirect_uri': REDIRECT_URI_for_gplus,
-    #                                      'scope':'openid email profile',
-    #                                      'response_type':'code',
-    #                                      'approval_prompt': 'force',
-    #                                      'access_type': 'offline'})
-    # request_status = get_user_code.status_code
-    # if request_status == 200:
-    #     return redirect(get_user_code.url)
-    # else:
-    #     return get_user_code.content, request_status
 
 
 @view_auth.route('/get_access_token_gplus', methods=['GET'])
