@@ -6,7 +6,7 @@ get_all_notes = """
     datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     usr.user_name as user_name,
     usr.id as user_id,
-    (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
+    (case when usr.photo not null then usr.photo else 'https://odykusha.pythonanywhere.com/static/img/deactivated_50.png' end) photo,
     nt.global_visible as global_visible
     from notes nt
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
@@ -21,7 +21,7 @@ get_user_notes = """
     datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     nt.user_id as user_id,
     usr.user_name as user_name,
-    (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
+    (case when usr.photo not null then usr.photo else 'https://odykusha.pythonanywhere.com/static/img/deactivated_50.png' end) photo,
     nt.global_visible as global_visible
     from notes nt
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
@@ -36,7 +36,7 @@ get_notes_deleted_users = """
     datetime(nt.timestamp, 'unixepoch', 'localtime', '+3 hours') as timestamp,
     usr.user_name as user_name,
     usr.id as user_id,
-    (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
+    (case when usr.photo not null then usr.photo else 'https://odykusha.pythonanywhere.com/static/img/deactivated_50.png' end) photo,
     nt.global_visible as global_visible
     from notes nt
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id
@@ -63,7 +63,7 @@ get_note_by_node_id = """
     nt.text as text,
     nt.user_id as user_id,
     usr.user_name as user_name,
-    (case when usr.photo not null then usr.photo else 'http://new.vk.com/images/deactivated_50.png' end) photo,
+    (case when usr.photo not null then usr.photo else 'https://odykusha.pythonanywhere.com/static/img/deactivated_50.png' end) photo,
     nt.global_visible as global_visible
     from notes nt
     LEFT OUTER JOIN users usr ON nt.user_id = usr.id

@@ -19,7 +19,7 @@ create table users (
 );
 
 insert into users (id, client_id, portal, user_name, photo)
-VALUES (0, 'null', 'null','Видаленні','http://new.vk.com/images/deactivated_50.png');
+VALUES (0, 'null', 'null','Видаленні','https://odykusha.pythonanywhere.com/static/img/deactivated_50.png');
 
 
 drop table if exists rand;

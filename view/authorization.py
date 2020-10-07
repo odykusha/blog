@@ -29,8 +29,8 @@ def auth_vk():
     if session.get('logged_user'):
         return redirect(url_for('view_notes.show_notes'))
     # on local
-    visual_res = {"access_token":"9d4ed75bbf948ff4d835f9e99fc6bdd05781a927c29a80cb4ad46c2d4770816b1c24f9c0ee27d8eef167d","expires_in":86390,"user_id":137375300}
-    return registration_vk(visual_res)
+    # visual_res = {"access_token":"9d4ed75bbf948ff4d835f9e99fc6bdd05781a927c29a80cb4ad46c2d4770816b1c24f9c0ee27d8eef167d","expires_in":86390,"user_id":137375300}
+    # return registration_vk(visual_res)
     # on real
     get_user_code = requests.get(url='https://oauth.vk.com/authorize',
                                  params={'client_id': CLIENT_ID_for_vk,
@@ -121,25 +121,37 @@ def auth_gplus():
     if session.get('logged_user'):
         return redirect(url_for('view_notes.show_notes'))
     # on local
-    visual_res = {'id_token': 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImU3ZGJmNTI2ZjYzOWMyMTRjZDc3YjM5NmVjYjlkN2Y4MWQ0N2IzODIifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhdF9oYXNoIjoiODJMejZvWnY1MEtaWVBONElMMDJKZyIsImF1ZCI6IjY3ODk3MTEzNDAwNS1wMDR1OHAzaXE4dHQ2dGg4MW45aTVicTE1aTdtYTg1MS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwNDMwMjI3MDk3MDYwMjI3OTc2NSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhenAiOiI2Nzg5NzExMzQwMDUtcDA0dThwM2lxOHR0NnRoODFuOWk1YnExNWk3bWE4NTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJoZCI6InNtYXJ0d2ViLmNvbS51YSIsImVtYWlsIjoiby5kaWt1c2hhQHNtYXJ0d2ViLmNvbS51YSIsImlhdCI6MTQ2MzE1MTAyMywiZXhwIjoxNDYzMTU0NjIzLCJuYW1lIjoi0J7Qu9C10LMg0JTQuNC60YPRiNCwIiwicGljdHVyZSI6Imh0dHBzOi8vbGg0Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tTHhmUVNjTkx5MDgvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQk0vbmhEaEVtYVY5encvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6ItCe0LvQtdCzIiwiZmFtaWx5X25hbWUiOiLQlNC40LrRg9GI0LAiLCJsb2NhbGUiOiJydSJ9.kJrFSEUtm4_EoJtAsd4VnrgKmhkQuglMC14eFbfvwvec5PKxj63WHl6NlLWkVxXXU_m5A_3k8_M818RJN-pFRddqX-XxJ2eDIomOmwmmRQnaOunWOa5RkzQOHOo2jrdQCpyR8Mf_gz_YdPac1AWhUaacXzw8l7Go4bFTxRNUt2U1kyBmzCWsfgNKBHZWaVUoVEL_BcP-57QsY5FAVI78QLzoqeW-W4Yjd4rTMfi9C2kr1N5jCqK4j5U2sFYIKRCUWg4kwUAJU1Xe_Ts48YDNE0MWHHMZc8X_-dWtRkLkTaFhjMh6bwvTXOHS4cHhZw71Uc0BPOgCNtroSf-xl49jyQ',
-                  'refresh_token': '1/a2Vc4DEaoHG9PtAcAxRja4MHONN6bcIfblWUIzeHHsUMEudVrK5jSpoR30zcRFq6',
-                  'token_type': 'Bearer',
-                  'access_token': 'ya29.CjHhAtYXDhrurj5115SifsCNFXeswkrFM1J4v4iANF2vgJXI3qcMYtB3WgClPD3tHZ7P',
-                  'expires_in': 3600}
-    return registration_gplus(visual_res)
+    # visual_res = {'id_token': 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImU3ZGJmNTI2ZjYzOWMyMTRjZDc3YjM5NmVjYjlkN2Y4MWQ0N2IzODIifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhdF9oYXNoIjoiODJMejZvWnY1MEtaWVBONElMMDJKZyIsImF1ZCI6IjY3ODk3MTEzNDAwNS1wMDR1OHAzaXE4dHQ2dGg4MW45aTVicTE1aTdtYTg1MS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsInN1YiI6IjEwNDMwMjI3MDk3MDYwMjI3OTc2NSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhenAiOiI2Nzg5NzExMzQwMDUtcDA0dThwM2lxOHR0NnRoODFuOWk1YnExNWk3bWE4NTEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJoZCI6InNtYXJ0d2ViLmNvbS51YSIsImVtYWlsIjoiby5kaWt1c2hhQHNtYXJ0d2ViLmNvbS51YSIsImlhdCI6MTQ2MzE1MTAyMywiZXhwIjoxNDYzMTU0NjIzLCJuYW1lIjoi0J7Qu9C10LMg0JTQuNC60YPRiNCwIiwicGljdHVyZSI6Imh0dHBzOi8vbGg0Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tTHhmUVNjTkx5MDgvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQk0vbmhEaEVtYVY5encvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6ItCe0LvQtdCzIiwiZmFtaWx5X25hbWUiOiLQlNC40LrRg9GI0LAiLCJsb2NhbGUiOiJydSJ9.kJrFSEUtm4_EoJtAsd4VnrgKmhkQuglMC14eFbfvwvec5PKxj63WHl6NlLWkVxXXU_m5A_3k8_M818RJN-pFRddqX-XxJ2eDIomOmwmmRQnaOunWOa5RkzQOHOo2jrdQCpyR8Mf_gz_YdPac1AWhUaacXzw8l7Go4bFTxRNUt2U1kyBmzCWsfgNKBHZWaVUoVEL_BcP-57QsY5FAVI78QLzoqeW-W4Yjd4rTMfi9C2kr1N5jCqK4j5U2sFYIKRCUWg4kwUAJU1Xe_Ts48YDNE0MWHHMZc8X_-dWtRkLkTaFhjMh6bwvTXOHS4cHhZw71Uc0BPOgCNtroSf-xl49jyQ',
+    #               'refresh_token': '1/a2Vc4DEaoHG9PtAcAxRja4MHONN6bcIfblWUIzeHHsUMEudVrK5jSpoR30zcRFq6',
+    #               'token_type': 'Bearer',
+    #               'access_token': 'ya29.CjHhAtYXDhrurj5115SifsCNFXeswkrFM1J4v4iANF2vgJXI3qcMYtB3WgClPD3tHZ7P',
+    #               'expires_in': 3600}
+    # return registration_gplus(visual_res)
+
     # on real
-    get_user_code = requests.get(url='https://accounts.google.com/o/oauth2/auth',
-                                 params={'client_id': CLIENT_ID_for_gplus,
-                                         'redirect_uri': REDIRECT_URI_for_gplus,
-                                         'scope':'https://www.googleapis.com/auth/userinfo.profile',
-                                         'response_type':'code',
-                                         'approval_prompt': 'force',
-                                         'access_type': 'offline'})
-    request_status = get_user_code.status_code
-    if request_status == 200:
-        return redirect(get_user_code.url)
-    else:
-        return get_user_code.content, request_status
+    outh2_url = (
+        'https://accounts.google.com/o/oauth2/v2/auth?'
+        'response_type=code&'
+        'client_id={client_id}'
+        'scope=openid%20email%20profile&'
+        'redirect_uri={redirect_uri}'.format(
+            client_id=CLIENT_ID_for_gplus,
+            redirect_uri=REDIRECT_URI_for_gplus,
+        )
+    )
+    return outh2_url
+    # get_user_code = requests.get(url='https://accounts.google.com/o/oauth2/auth',
+    #                              params={'client_id': CLIENT_ID_for_gplus,
+    #                                      'redirect_uri': REDIRECT_URI_for_gplus,
+    #                                      'scope':'openid email profile',
+    #                                      'response_type':'code',
+    #                                      'approval_prompt': 'force',
+    #                                      'access_type': 'offline'})
+    # request_status = get_user_code.status_code
+    # if request_status == 200:
+    #     return redirect(get_user_code.url)
+    # else:
+    #     return get_user_code.content, request_status
 
 
 @view_auth.route('/get_access_token_gplus', methods=['GET'])
