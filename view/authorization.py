@@ -139,7 +139,7 @@ def auth_gplus():
             redirect_uri=REDIRECT_URI_for_gplus,
         )
     )
-    return outh2_url
+    return redirect(outh2_url)
     # get_user_code = requests.get(url='https://accounts.google.com/o/oauth2/auth',
     #                              params={'client_id': CLIENT_ID_for_gplus,
     #                                      'redirect_uri': REDIRECT_URI_for_gplus,
