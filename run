@@ -1,0 +1,50 @@
+#!/bin/sh
+
+HASH_SUM=`./docker/check_enviroment_changes.sh`
+CONTAINER=odykusha/blog:${HASH_SUM}
+
+# echo "complete -f -W 'build pull push test version clean flake8' ./run" >> ~/.bashrc
+
+
+case $1 in
+    build )
+                if [ -z `docker images -q ${CONTAINER}` ]; then
+		            bash ./docker/build.sh;
+                else
+                    echo "\033[1;34m>> Found local container '${CONTAINER}'\033[0m";
+                fi;
+                echo "\033[1;34m>> build ...\e[92mOK\033[0m"
+                ;;
+
+    pull )
+                docker login
+                echo "\033[1;34m>> Please wait, i'm pulling...\033[0m"
+                if [ "$(docker pull ${CONTAINER} 2> /dev/null)" != "" ]; then
+                    echo "\033[1;34m>> Download ${CONTAINER} ...\e[92mOK\033[0m";
+                else
+                    echo "\033[1;34m>> Not found container ${CONTAINER}, use command 'build'\033[0m";
+                fi;
+                ;;
+
+    push )
+                docker login
+                docker push ${CONTAINER}
+                echo "\033[1;34m>> Pushed ${CONTAINER} in: https://cloud.docker.com ...\e[92mOK\033[0m"
+                ;;
+
+    this )
+                if [ -z `docker images -q ${CONTAINER}` ]; then
+                    echo "\033[1;34m>> Don't found local container '${CONTAINER}', build new container ...\e[91mWARNING\033[0m";
+                    bash ./run build;
+                fi;
+
+                shift ${OPTIND+1}
+                docker run --net=host -v "${PWD}":/work -it ${CONTAINER} python ./FLASKR.py
+                ;;
+
+    bash )
+                docker run --net=host -v "${PWD}":/work -it ${CONTAINER} bash
+                ;;
+
+
+esac

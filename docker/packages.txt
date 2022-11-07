@@ -1,0 +1,49 @@
+locales
+
+
+
+
+
+# # for cffi
+# libffi-dev
+# # for lxml
+# libxml2-dev
+# libxmlsec1-dev
+# # tools
+# redis-tools
+#
+# git
+# postgresql-client
+# ca-certificates
+# libfontconfig1
+# libfreetype6
+# libstdc++6
+# libicu60
+# gconf-service
+# dpkg
+# iproute2
+# # for xvfb
+# xvfb
+# x11vnc
+# x11-xkb-utils
+# xfonts-100dpi
+# xfonts-75dpi
+# xfonts-scalable
+# xfonts-cyrillic
+# xserver-xorg-core
+# # for chrome browser
+# curl
+# wget
+# unzip
+# xdg-utils
+# fonts-liberation
+# libappindicator1
+# libasound2
+# libatk-bridge2.0-0
+# libatk1.0-0
+# libcups2
+# libgconf-2-4
+# libgtk-3-0
+# libnspr4
+# libnss3
+# gnupg2
